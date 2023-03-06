@@ -1,0 +1,270 @@
+Given an array arr of positive integers sorted in a strictly increasing order, and an integer k.
+
+Return the kth positive integer that is missing from this array.
+
+Example 1:
+
+Input: arr = [2,3,4,7,11], k = 5
+Output: 9
+Explanation: The missing positive integers are [1,5,6,8,9,10,12,13,...]. The 5th missing positive integer is 9.
+
+Example 2:
+
+Input: arr = [1,2,3,4], k = 2
+Output: 6
+Explanation: The missing positive integers are [5,6,7,...]. The 2nd missing positive integer is 6.
+ 
+
+Constraints:
+
+1 <= arr.length <= 1000
+1 <= arr[i] <= 1000
+1 <= k <= 1000
+arr[i] < arr[j] for 1 <= i < j <= arr.length
+ 
+
+Follow up:
+
+Could you solve this problem in less than O(n) complexity?
+
+
+---------------------------------SOlution------------------------------------
+
+Python
+
+class Solution:
+    def findKthPositive(self, arr: List[int], k: int) -> int:
+        arr = set(arr)
+        count = 0
+        i=1
+        while True:
+            if i not in arr:
+                count+=1
+            if count == k:
+                return i
+            i+=1
+
+#class Solution:
+#    def findKthPositive(self, arr: List[int], k: int) -> int:
+
+# before the first number, the kth missed positive number is k
+# at the first location idx == 0,  if the arr[0] <= k, the kth missed number turns to be k + 1
+# else, the kth missed number still keeps to be k
+# time complexity is O(N)
+# space complexity is O(1)
+class Solution:
+    def findKthPositive(self, arr: List[int], k: int) -> int:
+        kth_missed, i = k, 0  #   
+        while i < len(arr) and arr[i] <= kth_missed:  # ret here is the previous location missed largest positive number
+            kth_missed += 1                           # if current one less or equal to the ret, ret must ++
+            i += 1
+        return kth_missed
+
+#"""
+#Binary Search :
+# binary search for the first position that missed >= k positive numbers
+# 1. at each index, we know how many positive number missed: it is arr[idx] - (idx + 1)
+# 2. if we know the first place that we missed >= k,  then from this index, we know the kth missed number is the index + k
+# 3. why? because, at index i, the assume to positive number is (i + 1),  at the previous number, in the assume to be positive number is i, 
+#    at the previous number,  it is the right boundary with less then k positive number missed, so, the kth missed number is (k + i)
+# 4. in this question, lb is indeed the assume to be positive number at the previous index, 
+
+# time complexity is O(logN)
+# space complexity is O(1)
+
+# Notice: at position idx = i, if not missing, the positive number should be (i + 1)
+# if number at the index idx = i: nums[idx] is less than (i + 1), means we missed missed = nums[idx] - (idx + 1) positive number
+# 
+
+# use binary search to find which point????  the first position that missed k or more than k numbers
+# the previous the position is the one of our target, from this point, we know the exact kth missed number
+
+class Solution:
+    def findKthPositive(self, arr: List[int], k: int) -> int:
+        size = len(arr)
+        l, r, lb = 0, size - 1, len(arr) # if no such boundary, it is len(arr)
+        
+        while l <= r: # Binary search for the first position that have missed >= k positive number in arr[]
+            mid = l + (r - l)//2
+            missing = arr[mid] - (mid + 1) # if not miss any positive number, at mid, should be the number of (mid + 1)
+            
+            if missing < k: # missed more than k numbers at mid of arr
+                l = mid + 1 
+            elif missing >= k: # try to find the first point missed >= k positive numbers
+                lb = mid # record the possibility
+                r = mid - 1 # further check the left boundary
+                # indeed, this is to find the right boundary with missed number less than k
+                                        
+        return lb + k  # at index lb, we missed = k positive numbers,  so, the kth missed number is lb + k
+#"""
+
+
+class Solution:
+    def findKthPositive(self, A, k):
+        class Count(object):
+            def __getitem__(self, i):
+                return A[i] - i - 1
+            
+        return k + bisect.bisect_left(Count(), k, 0, len(A))
+        
+        
+        #print(count(A))
+        
+        #return k + bisect.bisect_left(count(A), k)
+        
+        #return k + bisect.bisect_left(count(), k, 0, len(A))
+        
+# try to find the right boundary with missed number less than k. 
+class Solution:
+    def findKthPositive(self, arr: List[int], k: int) -> int:
+        size = len(arr)
+        l, r, rb = 0, size - 1, -1 # if no such boundary, it is len(arr)
+        
+        while l <= r: # Binary search for the first position that have missed >= k positive number in arr[]
+            mid = l + (r - l)//2
+            missing = arr[mid] - (mid + 1) # if not miss any positive number, at mid, should be the number of (mid + 1)
+            
+            if missing < k: # missed more than k numbers at mid of arr
+                rb = mid
+                l = mid + 1 
+            elif missing >= k: # try to find the first point missed >= k positive numbers
+                #lb = mid # record the possibility
+                r = mid - 1 # further check the left boundary
+                # indeed, this is to find the right boundary with missed number less than k
+                                        
+        return (rb + 1) + k  # at index lb, we missed = k positive numbers,  so, the kth missed number is lb + k
+
+
+"""
+Explanation
+Assume the final result is x,
+And there are m number not missing in the range of [1, x].
+Binary search the m in range [0, A.size()].
+
+If there are m number not missing,
+that is A[0], A[1] .. A[m-1],
+the number of missing under A[m] is A[m] - 1 - m.
+
+If A[m] - 1 - m < k, m is too small, we update left = m.
+If A[m] - 1 - m >= k, m is big enough, we update right = m.
+
+Note that, we exit the while loop, l = r,
+which equals to the number of missing number used.
+So the Kth positive number will be l + k.
+"""
+
+"""
+# check the gap: 
+class Solution:
+    def findKthPositive(self, arr: List[int], k: int) -> int:
+        # if the kth missing is less than arr[0]
+        if k <= arr[0] - 1:
+            return k
+        
+        k -= arr[0] - 1
+
+        # search kth missing between the array numbers
+        for i in range(len(arr) - 1):
+            # missing between arr[i] and arr[i + 1]
+            curr_missing = arr[i + 1] - arr[i] - 1
+            # if the kth missing is between
+            # arr[i] and arr[i + 1] -> return it
+            if k <= curr_missing:
+                return arr[i] + k
+            # otherwise, proceed further
+            k -= curr_missing
+
+        # if the missing number if greater than arr[-1]
+        return arr[-1] + k
+"""
+       
+"""
+class Solution:
+    def findKthPositive(self, arr: List[int], k: int) -> int:
+        pre_kth_missed_positive, i = k, 0  #   
+        while i < len(arr) and arr[i] <= pre_kth_missed_positive:  # ret here is the previous location missed largest positive number
+            pre_kth_missed_positive += 1                           # if current one less or equal to the ret, ret must ++
+            i += 1
+        return pre_kth_missed_positive
+"""
+    
+
+    
+
+
+
+
+
+
+"""
+Solution 2, binary search
+I really like this problem, because you do not stop when you find linear solution, and you can do better! What can be better, than linear solution? Usually it is solution with complexity O(log n). Now, we have two good indicators, that we need to use binary search: sorted data and O(log n) complexity. Let us look for the following example for more understanding:
+2, 3, 4, 7, 11, 12 and k = 5.
+We need to find place, of k-th missing positive number, so, let us create virtual list (virtual, because we will not compute it full, but only elements we need):
+
+B = [2 - 1, 3 - 2, 4 - 3, 7 - 4, 11 - 5, 12 - 6] = [1, 1, 1, 3, 6, 6].
+
+What this list represents is how many missing numbers we have for each inex: for first number we have missing number [1], for next two iterations also, when we add 7, we have 3 missing numbers: [1, 5, 6], when we add 11, we have 6 missing numbers: [1, 5, 6, 8, 9, 10]. How we evalaute values of list B? Very easy, it is just A[i] - i - 1.
+
+What we need to find now in array B: first element, which is greater or equal than k. In our example, we have [1, 1, 1, 3, 6, 6]. We will find it with binary search: this element have index end = 4. Finally, we need to go back to original data, we have
+
+arr = [2, 3, 4, 7, 11, 12]
+B = [1, 1, 1, 3, 6, 6]
+
+So, what we now know that our answer is between numbers 7 and 11 and it is equal to arr[end] - (B[end] - k + 1), where the second part is how many steps we need to make backward. Using B[end] = arr[end] - end - 1, we have end + k, we need to return.
+
+Complexity: time complexity is O(log n), space is O(1).
+"""
+
+
+
+
+
+"""
+# this is a regular solution
+class Solution:
+    def findKthPositive(self, arr: List[int], k: int) -> int:
+        # if the kth missing is less than arr[0]
+        if k <= arr[0] - 1:
+            return k
+        k -= arr[0] - 1
+
+        # search kth missing between the array numbers
+        for i in range(len(arr) - 1):
+            # missing between arr[i] and arr[i + 1]
+            curr_missing = arr[i + 1] - arr[i] - 1
+            # if the kth missing is between
+            # arr[i] and arr[i + 1] -> return it
+            if k <= curr_missing:
+                return arr[i] + k
+            # otherwise, proceed further
+            k -= curr_missing
+
+        # if the missing number if greater than arr[-1]
+        return arr[-1] + k
+"""
+if __name__ == "__main__":
+    arr = [2,3,4,7,11]
+    k = 5
+    soln = Solution()
+    print(soln.findKthPositive(arr, k))
+    
+
+TestCase 1:
+Input:
+arr = [2,3,4,7,11]
+k = 5
+Output:
+9
+Expected:
+9
+
+TestCase 2:
+Input:
+arr = [1,2,3,4]
+k = 2
+Output:
+6
+Expected:
+6
+

@@ -1,0 +1,108 @@
+Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+
+An input string is valid if:
+
+Open brackets must be closed by the same type of brackets.
+Open brackets must be closed in the correct order.
+Every close bracket has a corresponding open bracket of the same type.
+ 
+
+Example 1:
+
+Input: s = "()"
+Output: true
+
+Example 2:
+
+Input: s = "()[]{}"
+Output: true
+
+Example 3:
+
+Input: s = "(]"
+Output: false
+ 
+Constraints:
+
+1 <= s.length <= 10^4
+s consists of parentheses only '()[]{}'.
+
+-----------------------------------------------------Solution---------------------------------------------------
+
+Python
+
+class Solution:
+    def isValid(self, s: str) -> bool:
+        stk = []
+
+        for c in s:
+            if c == '(' or c == '{' or c == '[':
+                stk.append(c)
+            else:
+                if not stk or (stk[-1] == '(' and c != ')') or (stk[-1] == '{' and c != '}') or (stk[-1] == '[' and c != ']'):
+                    return False
+                stk.pop()
+        return not stk
+
+from collections import deque
+
+
+class Solution:
+    def isValid(self, s: str) -> bool:
+        data = {
+            '(':')',
+            '{':'}',
+            '[':']'
+        }
+        
+        stack = []
+        for char in list(s):
+            if char in data:
+                stack.append(char)
+            elif stack and data[stack.pop()] == char:
+                continue
+            else:
+                return False        
+        return not stack
+
+class Solution:
+    def isValid(self, s: str) -> bool:
+        if len(s) % 2 != 0:
+            return False
+        contains = []
+        endings = {
+            ')': '(',
+            '}': '{',
+            ']': '['
+        }
+        for char in s:
+            if char in (')', '}', ']'):
+                if not contains or contains.pop() != endings.get(char):
+                    return False
+            else:
+                contains.append(char)
+        return not contains
+
+TestCase 1:
+Input:
+s = "()"
+Output:
+true
+Expected:
+true
+
+TestCase 2:
+Input:
+s = "()[]{}"
+Output:
+true
+Expected:
+true
+
+TestCase 3:
+Input:
+s = "(]"
+Output:
+false
+Expected:
+false

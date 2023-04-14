@@ -1,0 +1,105 @@
+Given a string s, find the longest palindromic subsequence's length in s.
+
+A subsequence is a sequence that can be derived from another sequence by deleting some or no elements without changing the order of the remaining elements.
+
+ 
+
+Example 1:
+
+Input: s = "bbbab"
+Output: 4
+Explanation: One possible longest palindromic subsequence is "bbbb".
+
+Example 2:
+
+Input: s = "cbbd"
+Output: 2
+Explanation: One possible longest palindromic subsequence is "bb".
+ 
+
+Constraints:
+
+1 <= s.length <= 1000
+s consists only of lowercase English letters.
+
+
+-----------------------------------------------------Solution----------------------------------------------------
+
+Python
+
+class Solution:
+    def longestPalindromeSubseq(self, s: str) -> int:
+        n = len(s)
+        dp = [0] * n
+        for i in range(n-1, -1, -1):
+            newdp = [0] * n
+            newdp[i] = 1
+            for j in range(i+1, n):
+                if s[i] == s[j]:
+                    newdp[j] = 2 + dp[j-1]
+                else:
+                    newdp[j] = max(dp[j], newdp[j-1])
+            dp = newdp
+        return dp[-1]
+
+
+
+from functools import cache
+class Solution:
+    def longestPalindromeSubseq(self, s: str) -> int:
+        @cache
+        def search_palindromes(s):
+            # base case 
+            if not s:
+                return 0
+            # base case 
+            longest_palindrome = 1
+            # loop over characters 
+            for character in string.ascii_lowercase:
+                # find next palindromic location of these characters currently on either end 
+                index_forward, index_backward = s.find(character), s.rfind(character)
+                # if we're not the same location 
+                if index_forward != index_backward:
+                    # get the longest palindrome as the max of search palindromes from 1 past index forward 
+                    # up to one before index backward. We have at least that many plus the two for this one
+                    # this then recursively continually shrinks s for the characters of question 
+                    # eventually all character combinations in all orders in the string are exhausted 
+                    longest_palindrome = max(longest_palindrome, search_palindromes(s[index_forward+1:index_backward]) + 2)
+            # return the longest palindrome subsequence found 
+            return longest_palindrome
+        # call our function 
+        return search_palindromes(s)
+
+
+
+class Solution:
+    def longestPalindromeSubseq(self, s: str) -> int:
+        memo = {}
+        def recursion(arr):
+            if arr not in memo:
+                best = 0
+                for c in set(arr):
+                    i, j = arr.find(c), arr.rfind(c)
+                    best = max(best, 1 if i == j else 2+recursion(arr[i+1:j]))
+                memo[arr] = best    
+            return memo[arr]
+        return recursion(s)
+
+
+
+TestCase 1:
+Input:
+s = "bbbab"
+Output:
+4
+Expected:
+4
+
+TestCase 2:
+Input:
+s = "cbbd"
+Output:
+2
+Expected:
+2
+

@@ -1,0 +1,104 @@
+You are given three positive integers: n, index, and maxSum. You want to construct an array nums (0-indexed) that satisfies the following conditions:
+
+nums.length == n
+nums[i] is a positive integer where 0 <= i < n.
+abs(nums[i] - nums[i+1]) <= 1 where 0 <= i < n-1.
+The sum of all the elements of nums does not exceed maxSum.
+nums[index] is maximized.
+Return nums[index] of the constructed array.
+
+Note that abs(x) equals x if x >= 0, and -x otherwise.
+
+ 
+
+Example 1:
+
+Input: n = 4, index = 2,  maxSum = 6
+Output: 2
+Explanation: nums = [1,2,2,1] is one array that satisfies all the conditions.
+There are no arrays that satisfy all the conditions and have nums[2] == 3, so 2 is the maximum nums[2].
+
+
+Example 2:
+
+Input: n = 6, index = 1,  maxSum = 10
+Output: 3
+ 
+
+Constraints:
+
+1 <= n <= maxSum <= 10^9
+0 <= index < n
+
+
+=====================================Solution======================================
+
+Python
+
+class Solution:
+    def maxValue(self, n: int, index: int, maxSum: int) -> int:
+        def calc_sum(cnt, end):
+            if cnt == 0:
+                return 0
+            start = max(end - cnt, 0)
+            sum1 = end * (1 + end) // 2
+            sum2 = start * (1 + start) // 2
+            return sum1 - sum2
+
+        maxSum -= n
+        l, r = 0, maxSum
+        while l <= r:
+            mid = (l + r) // 2
+            left_sum = calc_sum(index + 1, mid)
+            right_sum = calc_sum(n - index - 1, mid - 1)
+            if left_sum + right_sum <= maxSum:
+                l = mid + 1
+            else:
+                r = mid - 1
+        return l
+
+class Solution:
+    def maxValue(self, n: int, index: int, maxSum: int) -> int:
+        maxSum -= n
+        def test(a):
+            b = max(0, a - index)
+            s = (a + b) * (a - b + 1) // 2
+            b = max(0, a - (n - 1 - index))
+            s += (a + b) * (a - b + 1) // 2
+            return s - a
+        lo, hi = 0, maxSum
+        while lo < hi:
+            mid = (lo + hi) // 2 + 1
+            if test(mid) <= maxSum:
+                lo = mid
+            else:
+                hi = mid - 1
+        return lo + 1
+        
+        
+        
+TestCase 1:
+Input
+n =
+4
+index =
+2
+maxSum =
+6
+Output
+2
+Expected
+2
+
+TestCase 2:
+Input
+n =
+6
+index =
+1
+maxSum =
+10
+Output
+3
+Expected
+3

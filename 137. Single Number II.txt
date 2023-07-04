@@ -1,0 +1,135 @@
+Given an integer array nums where every element appears three times except for one, which appears exactly once. Find the single element and return it.
+
+You must implement a solution with a linear runtime complexity and use only constant extra space.
+
+ 
+Example 1:
+
+Input: nums = [2,2,3,2]
+Output: 3
+
+Example 2:
+
+Input: nums = [0,1,0,1,0,1,99]
+Output: 99
+ 
+
+Constraints:
+
+1 <= nums.length <= 3 * 10^4
+-2^31 <= nums[i] <= 2^31 - 1
+Each element in nums appears exactly three times except for one element which appears once.
+
+
+=================================Solution===================================
+
+Python
+
+class Solution:
+  def singleNumber(self, nums: List[int]) -> int:
+    ones, twos = 0, 0
+
+    for num in nums:
+      ones ^= (num & ~twos)
+      twos ^= (num & ~ones)
+
+    return ones
+
+
+#"""
+class Solution:
+    def singleNumber(self, nums: List[int]) -> int:        
+        return (3*sum(set(nums)) - sum(nums))//2
+#"""
+
+"""
+class Solution(object):
+    def singleNumber(self, nums):
+        count=Counter(nums)
+        for i in count:
+            if count.get(i)==1:
+                return i
+"""
+
+
+#"""
+class Solution:
+    def singleNumber(self, nums: List[int]) -> int:
+        seen_once = seen_twice = 0
+        
+        for num in nums:
+            # first appearance: 
+            # add num to seen_once 
+            # don't add to seen_twice because of presence in seen_once
+            
+            # second appearance: 
+            # remove num from seen_once 
+            # add num to seen_twice
+            
+            # third appearance: 
+            # don't add to seen_once because of presence in seen_twice
+            # remove num from seen_twice
+            seen_once = ~seen_twice & (seen_once ^ num)
+            seen_twice = ~seen_once & (seen_twice ^ num)
+
+        return seen_once
+#"""   
+
+
+"""
+# this one out of work if do not process i == 31 case, why c++ can work, but python cannot???
+class Solution: 
+    def singleNumber(self, nums: List[int]) ->int: 
+        res = 0 
+        for i in range(32):
+            cnt = 0 
+            for n in nums: 
+                cnt += (n >> i) & 1
+            if i == 31 and cnt%3: 
+                res -= 1<<31
+            else: 
+                res += ((cnt % 3) << i)
+                
+        return res
+"""
+
+
+"""
+#if 1
+// 32 bit consideration: 
+class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        int res = 0;
+        for (int i = 0; i < 32; ++i) {  // from LSB TO MSB
+            int cnt = 0;
+            for (int j = 0; j < nums.size(); ++j) {
+                cnt += (nums[j] >> i) & 1; // cnt the 1 at i-th bit
+            }
+            res += (cnt % 3) << i;  //res |= (cnt % 3) << i; can work as well. 
+            // if it is exact 3 times, this bit will set to 0, remove the impact of this bit. 
+        }
+        return res;
+    }
+};
+#endif
+"""
+
+
+TestCase 1:
+Input
+nums =
+[2,2,3,2]
+Output
+3
+Expected
+3
+
+TestCase 2:
+Input
+nums =
+[0,1,0,1,0,1,99]
+Output
+99
+Expected
+99

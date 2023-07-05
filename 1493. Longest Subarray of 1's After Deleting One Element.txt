@@ -1,0 +1,124 @@
+Given a binary array nums, you should delete one element from it.
+
+Return the size of the longest non-empty subarray containing only 1's in the resulting array. Return 0 if there is no such subarray.
+
+ 
+Example 1:
+
+Input: nums = [1,1,0,1]
+Output: 3
+Explanation: After deleting the number in position 2, [1,1,1] contains 3 numbers with value of 1's.
+
+Example 2:
+
+Input: nums = [0,1,1,1,0,1,1,0,1]
+Output: 5
+Explanation: After deleting the number in position 4, [0,1,1,1,1,1,0,1] longest subarray with value of 1's is [1,1,1,1,1].
+
+Example 3:
+
+Input: nums = [1,1,1]
+Output: 2
+Explanation: You must delete one element.
+ 
+
+Constraints:
+
+1 <= nums.length <= 10^5
+nums[i] is either 0 or 1.
+
+
+===================================Solution====================================
+
+Python
+
+class Solution:
+  def longestSubarray(self, nums: List[int]) -> int:
+    ans = 0
+    count0 = 0
+
+    l = 0
+    for r, num in enumerate(nums):
+      if num == 0:
+        count0 += 1
+      while count0 == 2:
+        if nums[l] == 0:
+          count0 -= 1
+        l += 1
+      ans = max(ans, r - l)
+
+    return ans
+
+
+class Solution:
+    def longestSubarray(self, nums: List[int]) -> int:
+        prev = None
+        curr = 0
+        longest = 0
+        for n in nums:
+            if n:
+                curr += 1
+            else:
+                if prev == None:
+                    prev = 0
+                longest = max(longest, prev + curr)
+                prev = curr
+                curr = 0
+        if prev is None:
+            return curr - 1
+        return max(longest, prev + curr)
+
+
+
+"""
+Sliding window
+- Expand window until 1 zero is deleted
+- Contract window until you reach another 0
+"""
+class Solution:
+    def longestSubarray(self, nums: List[int]) -> int:
+        left = 0
+        max_ones = 0
+        zero_count = 0
+
+        for right in range(len(nums)):
+            if nums[right] == 0:
+                zero_count += 1
+            
+            while zero_count > 1:
+                if nums[left] == 0:
+                    zero_count -= 1
+                left += 1
+            
+            curr_ones = right - left + 1
+            max_ones = max(max_ones, curr_ones)
+        
+        # Minus one since we are deleting 1 zero
+        return max_ones - 1
+
+TestCase 1:
+Input
+nums =
+[1,1,0,1]
+Output
+3
+Expected
+3
+
+TestCase 2:
+Input
+nums =
+[0,1,1,1,0,1,1,0,1]
+Output
+5
+Expected
+5
+
+TestCase 3:
+Input
+nums =
+[1,1,1]
+Output
+2
+Expected
+2

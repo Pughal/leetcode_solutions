@@ -1,0 +1,179 @@
+Hard
+
+
+The variance of a string is defined as the largest difference between the number of occurrences of any 2 characters present in the string. 
+Note the two characters may or may not be the same.
+
+Given a string s consisting of lowercase English letters only, return the largest variance possible among all substrings of s.
+
+A substring is a contiguous sequence of characters within a string.
+
+ 
+
+Example 1:
+
+Input: s = "aababbb"
+Output: 3
+Explanation:
+All possible variances along with their respective substrings are listed below:
+- Variance 0 for substrings "a", "aa", "ab", "abab", "aababb", "ba", "b", "bb", and "bbb".
+- Variance 1 for substrings "aab", "aba", "abb", "aabab", "ababb", "aababbb", and "bab".
+- Variance 2 for substrings "aaba", "ababbb", "abbb", and "babb".
+- Variance 3 for substring "babbb".
+Since the largest possible variance is 3, we return it.
+
+
+Example 2:
+
+Input: s = "abcde"
+Output: 0
+Explanation:
+No letter occurs more than once in s, so the variance of every substring is 0.
+ 
+
+Constraints:
+
+1 <= s.length <= 10^4
+s consists of lowercase English letters.
+
+
+==================================Solution========================================
+
+Python
+
+class Solution:
+  def largestVariance(self, s: str) -> int:
+    # A := the w// higher freq
+    # B := the w// lower freq
+    def kadane(a: str, b: str) -> int:
+      ans = 0
+      countA = 0
+      countB = 0
+      canExtendPrevB = False
+
+      for c in s:
+        if c != a and c != b:
+          continue
+        if c == a:
+          countA += 1
+        else:
+          countB += 1
+        if countB > 0:
+          # An interval should contain at least one b
+          ans = max(ans, countA - countB)
+        elif countB == 0 and canExtendPrevB:
+          # Edge case: consider previous b
+          ans = max(ans, countA - 1)
+
+        # Reset if # Of b > # Of a
+        if countB > countA:
+          countA = 0
+          countB = 0
+          canExtendPrevB = True
+
+      return ans
+
+    return max(kadane(c1, c2)
+               for c1 in string.ascii_lowercase
+               for c2 in string.ascii_lowercase
+               if c1 != c2)
+
+
+class Solution:
+    def largestVariance(self, s: str) -> int:
+        counter = collections.Counter(s)
+        res = 0
+        for a, b in itertools.permutations(counter, 2):
+            has_a, has_b = False, False
+            a_left, b_left = counter[a], counter[b]
+            total = 0
+            for ch in s:
+                if ch != a and ch != b:
+                    continue
+                if total < 0 and a_left and b_left:
+                    total = 0
+                    has_a, has_b = False, False
+                if ch == a:
+                    has_a = True
+                    a_left -= 1
+                    total += 1
+                if ch == b:
+                    has_b = True
+                    b_left -= 1
+                    total -= 1
+                if has_a and has_b:
+                    res = max(res, total)
+
+        return res
+            
+        
+
+class Solution:
+    def largestVariance(self, s: str) -> int:
+        res = 0
+        chars = list(set(s))
+		
+		# Loop through each pari of (c1, c2)
+        for i in range(len(chars)):
+            for j in range(i+1, len(chars)):
+                c1, c2 = chars[i], chars[j]
+				
+				# keep track of count(c1) - count(c2) 
+                diff = 0 
+				
+				# max and min of diff
+				# result should be maximum of (diff - min_diff, max_diff - diff)
+				# e.g. "baabaa", at index = 0, min_diff = -1. when index = 5, diff = 4 - 2 = 2, result = diff - min_diff = 2 - (-1) = 3
+                max_diff = min_diff = 0
+				
+				# diff at the previous occurance of c1/c2
+                last_c1_diff = last_c2_diff = 0 
+				
+				# check wether we have met c1/c2 during the loop
+                meet_c1 = meet_c2 = False
+				
+                for c in s:
+                    if c == c1:
+                        meet_c1 = True
+                        diff += 1
+						
+						#  use last_c1_diff instead of diff because we have to make sure that c1 is in the rest part of the substring. 
+						# e.g. [c1, c1, c2, c2, c2]
+						# At index = 1, if we use diff = 2 -> max_diff = 2
+						# At index = 4, diff = 2 - 3 = -1, result = max_diff - diff = 3. 
+						# Though we have [c2, c2, c2] as a substring, c1 is not in this string and the result is invalid
+                        max_diff = max(last_c1_diff, max_diff)
+						
+                        last_c1_diff = diff
+                    elif c == c2:
+                        meet_c2 = True
+                        diff -= 1
+                        min_diff = min(last_c2_diff, min_diff)
+                        last_c2_diff = diff
+                    else:
+                        continue
+					
+					# update the result only when we have met both c1 and c2 
+                    if meet_c1 and meet_c2:
+                        res = max(diff - min_diff, max_diff - diff, res)
+        return res
+
+
+
+TestCase 1:
+Input
+s =
+"aababbb"
+Output
+3
+Expected
+3
+
+TestCase 2:
+Input
+s =
+"abcde"
+Output
+0
+Expected
+0

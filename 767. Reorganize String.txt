@@ -1,0 +1,145 @@
+Given a string s, rearrange the characters of s so that any two adjacent characters are not the same.
+
+Return any possible rearrangement of s or return "" if not possible.
+
+
+Example 1:
+
+Input: s = "aab"
+Output: "aba"
+
+Example 2:
+
+Input: s = "aaab"
+Output: ""
+ 
+
+Constraints:
+
+1 <= s.length <= 500
+s consists of lowercase English letters.
+
+
+================================Solution=====================================
+
+Python
+
+class Solution:
+    def reorganizeString(self, s: str) -> str:
+        freq_map = {}
+        for char in s:
+            freq_map[char] = freq_map.get(char, 0) + 1
+            
+        max_heap = [(-freq, char) for char, freq in freq_map.items()]
+        heapq.heapify(max_heap)
+        
+        res = []
+        
+        while len(max_heap) >= 2:
+            freq1, char1 = heapq.heappop(max_heap)
+            freq2, char2 = heapq.heappop(max_heap)
+            
+            res.extend([char1, char2])
+            
+            if freq1 + 1 < 0:
+                heapq.heappush(max_heap, (freq1 + 1, char1))
+            if freq2 + 1 < 0:
+                heapq.heappush(max_heap, (freq2 + 1, char2))
+                
+        if max_heap:
+            freq, char = heapq.heappop(max_heap)
+            if -freq > 1:
+                return ""
+            res.append(char)
+            
+        return "".join(res)
+
+
+class Solution:
+    def reorganizeString(self, s: str) -> str:
+        #any 2 adjacent not the same
+        #lowercase english letters
+        count=defaultdict(int)
+        for c in s:
+            count[c]+=1
+        heap=[] #(n,c)
+        for c in count:
+            heap.append((-count[c],c))
+        heapq.heapify(heap)
+        
+        onhold=None #(n,c)
+        res=""
+        while heap:
+            n,c=heapq.heappop(heap)
+            res+=c
+            if onhold:
+                heapq.heappush(heap,onhold)
+            if n==-1:
+                onhold=None
+                continue
+            n+=1
+            onhold=(n,c)
+        if onhold:
+            return ""
+        return res
+                
+
+class Solution:
+    def reorganizeString(self, s: str) -> str:
+        '''
+        build a string so that any two adjacent characters are not the same
+        use heap and alternate placing most common chars
+        
+        '''
+        counts = Counter(s)
+        max_heap = [(-count,char) for char,count in counts.items()]
+        heapq.heapify(max_heap)
+        ans = []
+        
+        while max_heap:
+            #check first
+            first_count,first_char = heapq.heappop(max_heap)
+            #alloed char
+            if not ans or first_char != ans[-1]:
+                ans.append(first_char)
+                #make sure we have available
+                if first_count + 1 < 0:
+                    heapq.heappush(max_heap, (first_count + 1, first_char))
+            
+            #if we cant use the first char, then try the second char
+            else:
+                #if we cant use the first char, and there are nothing left, it canot be done
+                if not max_heap:
+                    return ""
+                
+                second_count,second_char = heapq.heappop(max_heap)
+                ans.append(second_char)
+                if second_count + 1 < 0:
+                    heapq.heappush(max_heap, (second_count + 1, second_char))
+                
+                #push the first char back
+                heapq.heappush(max_heap, (first_count,first_char))
+                
+        
+        return "".join(ans)
+
+
+
+
+TestCase 1:
+Input
+s =
+"aab"
+Output
+"aba"
+Expected
+"aba"
+
+TestCase 2:
+Input
+s =
+"aaab"
+Output
+""
+Expected
+""

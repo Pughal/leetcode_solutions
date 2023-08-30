@@ -1,0 +1,191 @@
+Hard
+
+
+You are given a 0-indexed integer array nums. In one operation you can replace any element of the array with any two elements that sum to it.
+
+For example, consider nums = [5,6,7]. In one operation, we can replace nums[1] with 2 and 4 and convert nums to [5,2,4,7].
+Return the minimum number of operations to make an array that is sorted in non-decreasing order.
+
+ 
+
+Example 1:
+
+Input: nums = [3,9,3]
+Output: 2
+Explanation: Here are the steps to sort the array in non-decreasing order:
+- From [3,9,3], replace the 9 with 3 and 6 so the array becomes [3,3,6,3]
+- From [3,3,6,3], replace the 6 with 3 and 3 so the array becomes [3,3,3,3,3]
+There are 2 steps to sort the array in non-decreasing order. Therefore, we return 2.
+
+Example 2:
+
+Input: nums = [1,2,3,4,5]
+Output: 0
+Explanation: The array is already in non-decreasing order. Therefore, we return 0. 
+ 
+
+Constraints:
+
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+
+
+=================================================Solution======================================================
+
+Python
+
+class Solution:
+  def minimumReplacement(self, nums: List[int]) -> int:
+    ans = 0
+
+    max = nums[-1]
+    for i in range(len(nums) - 2, -1, -1):
+      ops = (nums[i] - 1) // max
+      ans += ops
+      max = nums[i] // (ops + 1)
+
+    return ans
+
+
+class Solution:
+    def minimumReplacement(self, nums: List[int]) -> int:
+        answer = 0
+        n = len(nums)
+
+        # Start from the second last element, as the last one is always sorted.
+        for i in range(n - 2, -1, -1):
+            # No need to break if they are already in order.
+            if nums[i] <= nums[i + 1]:
+                continue
+            
+            # Count how many elements are made from breaking nums[i].
+            num_elements = (nums[i] + nums[i + 1] - 1) // nums[i + 1]
+            
+            # It requires numElements - 1 replacement operations.
+            answer += num_elements - 1
+
+            # Maximize nums[i] after replacement.
+            nums[i] = nums[i] // num_elements
+
+        return answer
+
+
+# class Solution:
+#     def minimumReplacement(self, nums: List[int]) -> int:
+#         n = len(nums)
+#         res = 0
+#         for i in range(n-2, -1, -1):
+#             if nums[i] > nums[i+1]:
+#                 n = nums[i]//nums[i+1]
+#                 remain = nums[i]%nums[i+1]
+
+#                 if remain == 0: # equally break up into n pieces of nums[i+1] => n-1 split
+#                     res += n-1
+#                     nums[i] = nums[i+1]
+#                 else: # break up into 1 + n pieces => n split
+#                     some = (nums[i+1]-remain)//(n+1)
+#                     remain = remain + n*some
+#                     x = nums[i+1]-some
+
+#                     res += n
+#                     if remain == x:
+#                         nums[i] = remain
+#                     else:
+#                         nums[i] = x-1
+#         return res
+
+class Solution:
+    def minimumReplacement(self, nums):
+        upperbound = nums[-1]
+        res = 0
+        for num in reversed(nums):
+            k = ceil(num/upperbound)
+            upperbound = num // k
+            res += k - 1
+        return res
+
+# # Intuition
+
+# first of all, operation only makes nums[i] smaller
+# => which also means last element be greatest
+
+# thus, we shuold check reversely and make nums[i] smaller to satisfy non-decreasing order
+
+# ```
+# nums = X X X X X nums[i] [nums[i+1] X X X X X X X X X X X]
+#                                       sorted
+# ```
+
+# if nums[i+1:] already sorted, range of nums[i] must <= nums[i+1]
+# - if nums[i] <= nums[i+1], just keep it and continue iteration
+# - if nums[i] > nums[i+1], we should break nums[i] up into two values and these two values should as large as possible
+#     - one way to break is num[i] = k*nums[i+1] + nums[i]%nums[i+1]. this is the **fewest** operation to break up nums[i], see example 1.
+
+# but we'll fail at testcase below. if we break up 7 into 1+6, 1 is too small and it'll make rest of nums[:i-1] need more operations.
+
+# ```
+# ex. [12,9,7,6,17,19], expected 6
+#  [12],  [9],  [7], 6, 17, 19
+#         6 3   3,4
+#        3 3
+#   6 6
+# 3 3 3 3
+
+# 7 -> 3,4
+# 9 -> 6, 3 -> 3,3,3
+# 12 -> 6,6 -> 6,3,3 -> 3,3,3,3
+# ```
+
+# thus, we should also break up nums[i] into almost equally large pieces by fewest operation where fewest opration equals k = nums[i]//nums[i+1] times.
+
+# `nums[i] = k * nums[i+1] + remain`
+# we should make remain as large as possible, therefore, we take some from k*nums[i+1]
+
+# ```
+# nums[i] = remain + k * nums[i+1] = remain + X + X + X + X + X where X = nums[i+1]
+
+# nums[i], nums[i+1] = (remain, X X X ...), nums[i+1]
+#                    = (remain+k, X-1, X-1, X-1, ...), nums[i+1]
+#                    = (remain + k*some, X-some, X-some, X-some, ...), nums[i+1]
+# thus -> remain+k*some <= X-some
+#      -> some <= (X-remain)/(k+1)
+#      -> remain = remain+k*some, X = X-some
+# ```
+
+# but don't forget we should make remain as large as possible.
+# if remain' = remain+k*some < X-some, we should be able to make remain' == X-some by take more from those k pieces.
+
+# ```
+# remain+k*some, X-some, X-some, X-some, X-some, X-some
+
+# if remain+k*some < X-some, we can make break up like below, take m pieces to make remain = remain+k*some + m = X-some-1. and this is the largest possible remain
+
+# remain+k*some + m, {X-some-1, X-some-1, X-some-1}, X-some, X-some
+#                               m pieces
+# ```
+
+# summary:
+# - we always break up nums[i] in fewest oprations:
+#     - if nums[i]%nums[i+1] == 0, totally nums[i]//nums[i+1] pieces => nums[i]//nums[i+1]-1 split
+#     - if nums[i]%nums[i+1] != 0, totally nums[i]//nums[i+1]+1 pieces => nums[i]//nums[i+1] split
+# - break up nums[i] into remain as largest as possible
+
+
+
+TestCase 1:
+Input
+nums =
+[3,9,3]
+Output
+2
+Expected
+2
+
+TestCase 2:
+Input
+nums =
+[1,2,3,4,5]
+Output
+0
+Expected
+0

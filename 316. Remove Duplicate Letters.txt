@@ -1,0 +1,100 @@
+Given a string s, remove duplicate letters so that every letter appears once and only once. 
+You must make sure your result is the smallest in lexicographical order among all possible results.
+
+ 
+Example 1:
+
+Input: s = "bcabc"
+Output: "abc"
+
+
+Example 2:
+
+Input: s = "cbacdcbc"
+Output: "acdb"
+ 
+
+Constraints:
+
+1 <= s.length <= 10^4
+s consists of lowercase English letters.
+ 
+
+Note: This question is the same as 1081: https://leetcode.com/problems/smallest-subsequence-of-distinct-characters/
+
+
+
+==========================================Solution=========================================
+
+Python
+
+class Solution:
+    def removeDuplicateLetters(self, s: str) -> str:
+        stack = []
+        seen = set() 
+        last_occ = {c: i for i, c in enumerate(s)}
+        
+        for i, c in enumerate(s):
+            if c not in seen:
+                
+                while stack and c < stack[-1] and i < last_occ[stack[-1]]:
+                    seen.discard(stack.pop())
+                seen.add(c)
+                stack.append(c)
+        
+        return ''.join(stack)
+
+
+import collections
+
+class Solution:
+    def removeDuplicateLetters(self, s: str) -> str:
+        counter, seen, stack = collections.Counter(s), set(), []
+
+        for char in s:
+            counter[char] -= 1
+            if char in seen:
+                continue
+            
+            # stack is not empty
+            # and current character is smaller in lexicographical order
+            # and the previous letter can be added later on
+            while stack and char < stack[-1] and counter[stack[-1]] > 0:
+                seen.remove(stack.pop())
+            stack.append(char)
+            seen.add(char)
+
+        return "".join(stack)
+
+
+class Solution:
+    def removeDuplicateLetters(self, s: str) -> str:
+        stk = []
+        seen = set()
+        last_pos = {c:i for i,c in enumerate(s)}
+        for i,c in enumerate(s):
+            if c not in seen:
+                while stk and c < stk[-1] and last_pos[stk[-1]] > i:
+                    seen.discard(stk.pop())
+                seen.add(c)
+                stk.append(c)
+        return ''.join(stk)
+        
+
+TestCase 1:
+Input
+s =
+"bcabc"
+Output
+"abc"
+Expected
+"abc"
+
+TestCase 2:
+Input
+s =
+"cbacdcbc"
+Output
+"acdb"
+Expected
+"acdb"

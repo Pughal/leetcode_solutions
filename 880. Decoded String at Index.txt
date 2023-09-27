@@ -1,0 +1,143 @@
+You are given an encoded string s. To decode the string to a tape, the encoded string is read one character at a time and the following steps are taken:
+
+If the character read is a letter, that letter is written onto the tape.
+If the character read is a digit d, the entire current tape is repeatedly written d - 1 more times in total.
+Given an integer k, return the kth letter (1-indexed) in the decoded string.
+
+ 
+
+Example 1:
+
+Input: s = "leet2code3", k = 10
+Output: "o"
+Explanation: The decoded string is "leetleetcodeleetleetcodeleetleetcode".
+The 10th letter in the string is "o".
+
+
+Example 2:
+
+Input: s = "ha22", k = 5
+Output: "h"
+Explanation: The decoded string is "hahahaha".
+The 5th letter is "h".
+
+
+Example 3:
+
+Input: s = "a2345678999999999999999", k = 1
+Output: "a"
+Explanation: The decoded string is "a" repeated 8301530446056247680 times.
+The 1st letter is "a".
+ 
+
+Constraints:
+
+2 <= s.length <= 100
+s consists of lowercase English letters and digits 2 through 9.
+s starts with a letter.
+1 <= k <= 10^9
+It is guaranteed that k is less than or equal to the length of the decoded string.
+The decoded string is guaranteed to have less than 263 letters.
+
+
+
+=========================================Solution=============================================
+
+Python
+
+class Solution:
+  def decodeAtIndex(self, s: str, k: int) -> str:
+    size = 0
+
+    for c in s:
+      if c.isdigit():
+        size *= int(c)
+      else:
+        size += 1
+
+    for c in reversed(s):
+      k %= size
+      if k == 0 and c.isalpha():
+        return c
+      if c.isdigit():
+        size //= int(c)
+      else:
+        size -= 1
+
+
+
+
+class Solution:
+    def decodeAtIndex(self, s: str, k: int) -> str:
+        # type: (...) -> str
+        n = len(s)
+        if n == 0: return ""
+        # Consider n > 0
+
+        # Find l = length of the decoded string right after L >= k
+        l = 1
+        # L = [l] # To record l
+        i = 1
+        while i < n:
+            if not s[i].isdigit():
+                l += 1
+            else:
+                d = int(s[i])
+                l *= d
+            # L.append(l)
+            if l >= k:
+                break
+            i += 1
+        # print(f"L = {str(L)}, i = {str(i)}")
+
+        # Now, search from s[i] to s[0]
+        result = ""
+        while i >= 0:
+            if not s[i].isdigit(): # Encounter letter
+                # The problem now is to find the k-th char in decoded[0:l]
+                if k == 0 or k == l: # Note that here k could be 0 due to problem reduction
+                    result = s[i]
+                    break
+                else:
+                    l -= 1 # Reduce the problem into new l (i.e. one less)
+            else: # Encounter digit, reduce the problem into new (l, k)
+                l = l / int(s[i])
+                k  = k % l
+
+            i -= 1
+
+        return result
+        
+
+TestCase 1:
+Input
+s =
+"leet2code3"
+k =
+10
+Output
+"o"
+Expected
+"o"
+
+TestCase 2:
+Input
+s =
+"ha22"
+k =
+5
+Output
+"h"
+Expected
+"h"
+
+TestCase 3:
+Input
+s =
+"a2345678999999999999999"
+k =
+1
+Output
+"a"
+Expected
+"a"

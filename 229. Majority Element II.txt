@@ -1,0 +1,128 @@
+Given an integer array of size n, find all elements that appear more than ⌊ n/3 ⌋ times.
+
+ 
+
+Example 1:
+
+Input: nums = [3,2,3]
+Output: [3]
+
+Example 2:
+
+Input: nums = [1]
+Output: [1]
+
+Example 3:
+
+Input: nums = [1,2]
+Output: [1,2]
+ 
+
+Constraints:
+
+1 <= nums.length <= 5 * 10^4
+-10^9 <= nums[i] <= 10^9
+ 
+
+Follow up: Could you solve the problem in linear time and in O(1) space?
+
+
+===========================================Solution===========================================
+
+Python
+
+class Solution:
+  def majorityElement(self, nums: List[int]) -> List[int]:
+    ans1 = 0
+    ans2 = 1
+    count1 = 0
+    count2 = 0
+
+    for num in nums:
+      if num == ans1:
+        count1 += 1
+      elif num == ans2:
+        count2 += 1
+      elif count1 == 0:
+        ans1 = num
+        count1 = 1
+      elif count2 == 0:
+        ans2 = num
+        count2 = 1
+      else:
+        count1 -= 1
+        count2 -= 1
+
+    return [ans for ans in (ans1, ans2) if nums.count(ans) > len(nums) // 3]
+
+
+class Solution:
+    def majorityElement(self, nums: List[int]) -> List[int]:
+        n = list(set(nums))
+        l = len(nums)//3
+        res = []
+
+        for i in n:
+            if nums.count(i) > l:
+                res.append(i)
+        
+        return res
+
+
+class Solution:
+    def majorityElement(self, nums: List[int]) -> List[int]:
+        counter = Counter(nums)
+        return list(set(n for n in nums if counter[n] > len(nums) // 3))
+
+
+class Solution:
+    def majorityElement(self, nums: List[int]) -> List[int]:
+        dict1={}
+        result = []
+        for i in nums:
+            dict1[i] = nums.count(i)
+            if dict1[i] > len(nums)//3 and i not in result:
+                result.append(i)
+        return result
+        # n = len(nums)
+        # result = []
+        # for i in nums:
+        #     if nums.count(i) > n//3 and i not in result:    
+        #         result.append(i)
+        # return result
+
+        # Moore's Voting Algorithm
+        # n = len(nums)/2
+        # dict1 = {}
+        # for i in nums:
+        #     dict1[i] = dict1.get(i,0) + 1
+        #     if dict1[i] > n:
+        #         return i
+
+
+TestCase 1:
+Input
+nums =
+[3,2,3]
+Output
+[3]
+Expected
+[3]
+
+TestCase 2:
+Input
+nums =
+[1]
+Output
+[1]
+Expected
+[1]
+
+TestCase 3:
+Input
+nums =
+[1,2]
+Output
+[2,1]
+Expected
+[1,2]

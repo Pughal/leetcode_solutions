@@ -1,0 +1,168 @@
+Given an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value.
+
+If target is not found in the array, return [-1, -1].
+
+You must write an algorithm with O(log n) runtime complexity.
+
+ 
+
+Example 1:
+
+Input: nums = [5,7,7,8,8,10], target = 8
+Output: [3,4]
+
+Example 2:
+
+Input: nums = [5,7,7,8,8,10], target = 6
+Output: [-1,-1]
+
+Example 3:
+
+Input: nums = [], target = 0
+Output: [-1,-1]
+ 
+
+Constraints:
+
+0 <= nums.length <= 10^5
+-10^9 <= nums[i] <= 10^9
+nums is a non-decreasing array.
+-10^9 <= target <= 10^9
+
+
+
+====================================Solution====================================
+
+Python
+
+class Solution:
+  def searchRange(self, nums: List[int], target: int) -> List[int]:
+    l = bisect_left(nums, target)
+    if l == len(nums) or nums[l] != target:
+      return -1, -1
+    r = bisect_right(nums, target) - 1
+    return l, r
+
+
+
+class Solution:
+    def leftBound(self, nums, target) -> int:
+        '''
+        find and return the index of the left bound of the given target in the list
+        if not found, return -1
+        '''
+
+        left, right = 0, len(nums) - 1
+        while left <= right:
+            mid = left + (right - left) // 2
+
+            if nums[mid] < target:
+                left = mid + 1
+            elif nums[mid] > target:
+                right = mid - 1
+            else:
+                right = mid - 1 # 为什么 right 的更新必须是 right = mid - 1? 为了把 nums[mid] 排除出搜索区间!
+        if left >= len(nums) or nums[left] != target:
+            return -1
+
+        return left # what to return? 
+        # depends on where your pointer land as you enters the last left == right while loop
+
+    def rightBound(self, nums, target) -> int:
+        '''
+        find and return the index of the right bound of the given target in the list
+        if not found, return -1
+        '''
+        left, right = 0, len(nums) - 1
+
+        while left <= right:
+            mid = left + (right - left) // 2
+            if nums[mid] < target:
+                left = mid + 1
+            elif nums[mid] > target:
+                right = mid - 1
+            else:
+                left = mid + 1
+        if right < 0 or nums[right] != target:
+            return -1
+
+        return right
+    
+    def searchRange(self, nums: List[int], target: int) -> List[int]:
+        l = self.leftBound(nums, target)
+        r = self.rightBound(nums, target)
+        
+        return [l, r] if l != -1 else [-1,-1]
+        
+
+
+
+class Solution:
+    def binarySearch(self, nums, target, find_start):
+        low = 0
+        high = len(nums) - 1
+        res = -1
+        while low <= high:
+            mid = (low + high) // 2
+            if nums[mid] == target:
+                res = mid
+                if find_start:
+                    high = mid - 1
+                else:
+                    low = mid + 1
+            elif nums[mid] < target:
+                low = mid + 1
+            else:
+                high = mid - 1
+        return res
+
+
+    def searchRange(self, nums: List[int], target: int) -> List[int]:
+        # if target in nums:
+        #     start = nums.index(target)
+        #     end = len(nums) - 1 - nums[::-1].index(target)
+        #     return [start, end]
+        # else:
+        #     return [-1, -1]
+        if target in nums:
+            start = self.binarySearch(nums, target, True)
+            end = self.binarySearch(nums, target, False)
+            return [start, end]
+        else:
+            return [-1, -1]
+                
+        
+        
+
+TestCase 1:
+Input
+nums =
+[5,7,7,8,8,10]
+target =
+8
+Output
+[3,4]
+Expected
+[3,4]
+
+TestCase 2:
+Input
+nums =
+[5,7,7,8,8,10]
+target =
+6
+Output
+[-1,-1]
+Expected
+[-1,-1]
+
+TestCase 3:
+Input
+nums =
+[]
+target =
+0
+Output
+[-1,-1]
+Expected
+[-1,-1]

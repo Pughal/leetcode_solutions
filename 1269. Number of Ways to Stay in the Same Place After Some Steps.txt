@@ -1,0 +1,113 @@
+You have a pointer at index 0 in an array of size arrLen. 
+At each step, you can move 1 position to the left, 1 position to the right in the array, or stay in the same place 
+(The pointer should not be placed outside the array at any time).
+
+Given two integers steps and arrLen, return the number of ways such that your pointer is still at index 0 after exactly steps steps. 
+Since the answer may be too large, return it modulo 109 + 7.
+
+ 
+
+Example 1:
+
+Input: steps = 3, arrLen = 2
+Output: 4
+Explanation: There are 4 differents ways to stay at index 0 after 3 steps.
+Right, Left, Stay
+Stay, Right, Left
+Right, Stay, Left
+Stay, Stay, Stay
+
+
+Example 2:
+
+Input: steps = 2, arrLen = 4
+Output: 2
+Explanation: There are 2 differents ways to stay at index 0 after 2 steps
+Right, Left
+Stay, Stay
+
+
+Example 3:
+
+Input: steps = 4, arrLen = 2
+Output: 8
+ 
+
+Constraints:
+
+1 <= steps <= 500
+1 <= arrLen <= 10^6
+
+
+=============================================Solution===========================================
+
+Python
+
+class Solution:
+  def numWays(self, steps: int, arrLen: int) -> int:
+    kMod = 1_000_000_007
+    # dp[i] := # of ways to stay on index i
+    dp = [0] * min(steps // 2 + 1, arrLen)
+    dp[0] = 1
+
+    for _ in range(steps):
+      newDp = [0] * min(steps // 2 + 1, arrLen)
+      for i, ways in enumerate(dp):
+        if ways > 0:
+          for dx in (-1, 0, 1):
+            nextIndex = i + dx
+            if 0 <= nextIndex < len(dp):
+              newDp[nextIndex] += ways
+              newDp[nextIndex] %= kMod
+      dp = newDp
+
+    return dp[0]
+
+
+class Solution:
+    def numWays(self, steps: int, arrLen: int) -> int:
+        n = min(steps // 2 + 1, arrLen)
+        mod = 10 ** 9 + 7
+        dp = [1] + [0] * n
+
+        for _ in range(steps):
+            prev = 0
+            for i in range(n):
+                dp[i], prev = (prev + dp[i] + dp[i+1]) % mod, dp[i]
+        return dp[0]
+
+
+
+
+TestCase 1:
+Input
+steps =
+3
+arrLen =
+2
+Output
+4
+Expected
+4
+
+TestCase 2:
+Input
+steps =
+2
+arrLen =
+4
+Output
+2
+Expected
+2
+
+TestCase 3:
+Input
+steps =
+4
+arrLen =
+2
+Output
+8
+Expected
+8

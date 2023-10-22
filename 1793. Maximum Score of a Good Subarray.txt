@@ -1,0 +1,128 @@
+You are given an array of integers nums (0-indexed) and an integer k.
+
+The score of a subarray (i, j) is defined as min(nums[i], nums[i+1], ..., nums[j]) * (j - i + 1). A good subarray is a subarray where i <= k <= j.
+
+Return the maximum possible score of a good subarray.
+
+ 
+
+Example 1:
+
+Input: nums = [1,4,3,7,4,5], k = 3
+Output: 15
+Explanation: The optimal subarray is (1, 5) with a score of min(4,3,7,4,5) * (5-1+1) = 3 * 5 = 15. 
+
+
+Example 2:
+
+Input: nums = [5,5,4,5,4,1,1,1], k = 0
+Output: 20
+Explanation: The optimal subarray is (0, 4) with a score of min(5,5,4,5,4) * (4-0+1) = 4 * 5 = 20.
+ 
+
+Constraints:
+
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 2 * 10^4
+0 <= k < nums.length
+
+
+
+=======================================Solution=======================================
+
+Python
+
+class Solution:
+  def maximumScore(self, nums: List[int], k: int) -> int:
+    n = len(nums)
+    ans = nums[k]
+    mini = nums[k]
+    i = k
+    j = k
+
+    # Greedily expand the window and decrease min as slow as possible (ASAP).
+    while i > 0 or j < n - 1:
+      if i == 0:
+        j += 1
+      elif j == n - 1:
+        i -= 1
+      elif nums[i - 1] < nums[j + 1]:
+        j += 1
+      else:
+        i -= 1
+      mini = min(mini, nums[i], nums[j])
+      ans = max(ans, mini * (j - i + 1))
+
+    return ans
+
+
+class Solution:
+    def maximumScore(self, nums: List[int], k: int) -> int:
+        n = len(nums)
+        left = [-1] * n
+        stack = []
+        
+        for i in range(n - 1, -1, -1):
+            while stack and nums[stack[-1]] > nums[i]:
+                left[stack.pop()] = i
+                
+            stack.append(i)
+            
+        right = [n] * n
+        stack = []
+        for i in range(n):
+            while stack and nums[stack[-1]] > nums[i]:
+                right[stack.pop()] = i
+            
+            stack.append(i)
+
+        ans = 0
+        for i in range(n):
+            if left[i] < k and right[i] > k:
+                ans = max(ans, nums[i] * (right[i] - left[i] - 1))
+        
+        return ans
+
+
+
+class Solution:
+    def maximumScore(self, nums: List[int], k: int) -> int:
+        left = right = k  ;  ans = mn = nums[k]
+        n = len(nums)
+
+        while left > 0 or right < n - 1:
+            while left  >     0 and nums[left  - 1] >= mn: left  -= 1
+            while right < n - 1 and nums[right + 1] >= mn: right += 1
+
+            ans = max(ans, (right - left + 1) * mn)
+
+            beg = nums[left  - 1] if left  >     0 else -1
+            end = nums[right + 1] if right < n - 1 else -1
+
+            mn = max(beg, end)
+
+        return ans
+        
+
+
+TestCase 1:
+Input
+nums =
+[1,4,3,7,4,5]
+k =
+3
+Output
+15
+Expected
+15
+
+TestCase 2:
+Input
+nums =
+[5,5,4,5,4,1,1,1]
+k =
+0
+Output
+20
+Expected
+20

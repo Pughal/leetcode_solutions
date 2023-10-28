@@ -1,0 +1,155 @@
+Hard
+
+Given an integer n, your task is to count how many strings of length n can be formed under the following rules:
+
+Each character is a lower case vowel ('a', 'e', 'i', 'o', 'u')
+Each vowel 'a' may only be followed by an 'e'.
+Each vowel 'e' may only be followed by an 'a' or an 'i'.
+Each vowel 'i' may not be followed by another 'i'.
+Each vowel 'o' may only be followed by an 'i' or a 'u'.
+Each vowel 'u' may only be followed by an 'a'.
+Since the answer may be too large, return it modulo 10^9 + 7.
+
+ 
+
+Example 1:
+
+Input: n = 1
+Output: 5
+Explanation: All possible strings are: "a", "e", "i" , "o" and "u".
+
+
+Example 2:
+
+Input: n = 2
+Output: 10
+Explanation: All possible strings are: "ae", "ea", "ei", "ia", "ie", "io", "iu", "oi", "ou" and "ua".
+Example 3: 
+
+Input: n = 5
+Output: 68
+ 
+
+Constraints:
+
+1 <= n <= 2 * 10^4
+
+
+======================================Solution==========================================
+
+Python
+
+class Solution:
+  def countVowelPermutation(self, n: int) -> int:
+    kMod = 1_000_000_007
+    dp = {'a': 1, 'e': 1, 'i': 1, 'o': 1, 'u': 1}
+
+    for _ in range(n - 1):
+      newDp = {'a': dp['e'] + dp['i'] + dp['u'],
+               'e': dp['a'] + dp['i'],
+               'i': dp['e'] + dp['o'],
+               'o': dp['i'],
+               'u': dp['i'] + dp['o']}
+      dp = newDp
+
+    return sum(dp.values()) % kMod
+
+
+class Solution:
+    def countVowelPermutation(self, n: int) -> int:
+        MOD =  pow(10,9) + 7
+        def multiply(a, b):
+            
+            result = [ [0] * len(b[0]) for _ in range(len(a))]
+#           This is just simple matrix multiplicaiton
+            for i in range(len(a)):
+                for j in range(len(b[0])):
+                    for k in range(len(a[0])):
+                        result[i][j] += (a[i][k] * b[k][j]) % MOD
+                        result[i][j] %= MOD
+            return result
+        
+        
+        adjacency_matrix = [
+            [0,1,0,0,0],
+            [1,0,1,0,0],
+            [1,1,0,1,1],
+            [0,0,1,0,1],
+            [1,0,0,0,0]
+        ]
+        
+        result = [[0]*5 for _ in range(5)]
+        for i in range(5):
+            result[i][i] = 1
+        
+        s = 0
+        n -= 1
+        while n:
+            if n & 1:
+                result = multiply(adjacency_matrix,result)
+            n >>= 1
+            adjacency_matrix = multiply(adjacency_matrix,adjacency_matrix)
+        
+        for i in range(5):
+            s += sum(result[i])
+        
+        return s % MOD
+
+
+
+# transition = [
+#     [0, 1, 0, 0, 0],
+#     [1, 0, 1, 0, 0],
+#     [1, 1, 0, 1, 1],
+#     [0, 0, 1, 0, 1],
+#     [1, 0, 0, 0, 0]
+# ]
+
+# Computing the char. polynomial.
+# In [89]: import numpy as np
+#     ...: m = np.array(transition)
+#     ...: mi = np.eye(5)
+#     ...: X = mi.flatten().reshape(-1,1)
+#     ...: for i in range(5):
+#     ...:     mi = m @ mi
+#     ...:     X = np.concatenate((X, mi.flatten().reshape(-1,1)), axis=1)
+#     ...: 
+#     ...: q, r = np.linalg.qr(X[:,:-1])
+#     ...: 
+#     ...: print(np.linalg.solve(r, q.T @ X[:,-1]))
+#     ...: 
+#     ...: print(X[:,:-1].sum(axis=0))
+# [ 1.00000000e+00  1.19368338e-15  1.00000000e+00  3.00000000e+00
+#  -6.64395120e-16]
+# [ 5. 10. 19. 35. 68.]
+
+
+P = 1_000_000_007
+
+class Solution:
+    def countVowelPermutation(self, n: int) -> int:
+        a0, a1, a2, a3, a4 = 1, 0, 0, 0, 0
+        for _ in range(n-1):
+            a0, a1, a2, a3, a4 = a4, a0, (a4+a1), (3*a4+a2) % P, a3
+
+        return (a0*5+a1*10+a2*19+a3*35+a4*68) % P
+        
+        
+
+TestCase 1:
+Input
+n =
+1
+Output
+5
+Expected
+5
+
+TestCase 2:
+Input
+n =
+2
+Output
+10
+Expected
+10

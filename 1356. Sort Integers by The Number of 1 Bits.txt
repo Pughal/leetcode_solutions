@@ -1,0 +1,102 @@
+You are given an integer array arr. 
+Sort the integers in the array in ascending order by the number of 1's in their binary representation 
+and in case of two or more integers have the same number of 1's you have to sort them in ascending order.
+
+Return the array after sorting it.
+
+
+Example 1:
+
+Input: arr = [0,1,2,3,4,5,6,7,8]
+Output: [0,1,2,4,8,3,5,6,7]
+Explantion: [0] is the only integer with 0 bits.
+[1,2,4,8] all have 1 bit.
+[3,5,6] have 2 bits.
+[7] has 3 bits.
+The sorted array by bits is [0,1,2,4,8,3,5,6,7]
+
+
+Example 2:
+
+Input: arr = [1024,512,256,128,64,32,16,8,4,2,1]
+Output: [1,2,4,8,16,32,64,128,256,512,1024]
+Explantion: All integers have 1 bit in the binary representation, you should just sort them in ascending order.
+ 
+
+Constraints:
+
+1 <= arr.length <= 500
+0 <= arr[i] <= 10^4
+
+
+
+===========================================Solution=========================================
+
+Python
+
+class Solution:
+    def sortByBits(self, arr: List[int]) -> List[int]:
+        # I've taken 15 buckets here because max num in arr according to constraint is 10000, 
+        # Use 32 buckets to represent 32 bits if constraint is bigger
+        buckets = [[] for _ in range(15)]
+        res = []
+
+        # Calculating number of ones and placing the num in corresponding bucket
+        for n in arr:
+            nn = n
+            ones = 0
+
+            while n:
+                n = n & (n - 1)
+                ones += 1
+
+            buckets[ones].append(nn)
+        
+        # Extracting result
+        for buck in buckets:
+            buck.sort()
+
+            for n in buck:
+                res.append(n)
+
+        return res
+
+
+class Solution:
+    def sortByBits(self, arr: List[int]) -> List[int]:
+        return sorted(arr, key=lambda x: (bin(x).count('1'), x))
+
+
+class Solution:
+    def sortByBits(self, arr: List[int]) -> List[int]:
+        hashmap = {}
+        for n in sorted(arr):
+            if n.bit_count() not in hashmap:
+                hashmap[n.bit_count()] = [n]
+            else:
+                hashmap[n.bit_count()].append(n)
+        k_list = sorted(hashmap.keys())
+        out = []
+        for k in k_list:
+            out += hashmap[k]
+        return out
+        
+
+
+TestCase 1:
+Input
+arr =
+[0,1,2,3,4,5,6,7,8]
+Output
+[0,1,2,4,8,3,5,6,7]
+Expected
+[0,1,2,4,8,3,5,6,7]
+
+TestCase 2:
+Input
+arr =
+[1024,512,256,128,64,32,16,8,4,2,1]
+Output
+[1,2,4,8,16,32,64,128,256,512,1024]
+Expected
+[1,2,4,8,16,32,64,128,256,512,1024]

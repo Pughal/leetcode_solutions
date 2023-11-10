@@ -1,0 +1,233 @@
+There is an integer array nums that consists of n unique elements, but you have forgotten it. However, you do remember every pair of adjacent elements in nums.
+
+You are given a 2D integer array adjacentPairs of size n - 1 where each adjacentPairs[i] = [ui, vi] indicates that the elements ui and vi are adjacent in nums.
+
+It is guaranteed that every adjacent pair of elements nums[i] and nums[i+1] will exist in adjacentPairs, either as [nums[i], nums[i+1]] or [nums[i+1], nums[i]]. 
+The pairs can appear in any order.
+
+Return the original array nums. If there are multiple solutions, return any of them.
+
+ 
+
+Example 1:
+
+Input: adjacentPairs = [[2,1],[3,4],[3,2]]
+Output: [1,2,3,4]
+Explanation: This array has all its adjacent pairs in adjacentPairs.
+Notice that adjacentPairs[i] may not be in left-to-right order.
+
+
+Example 2:
+
+Input: adjacentPairs = [[4,-2],[1,4],[-3,1]]
+Output: [-2,4,1,-3]
+Explanation: There can be negative numbers.
+Another solution is [-3,1,4,-2], which would also be accepted.
+
+
+Example 3:
+
+Input: adjacentPairs = [[100000,-100000]]
+Output: [100000,-100000]
+ 
+
+Constraints:
+
+nums.length == n
+adjacentPairs.length == n - 1
+adjacentPairs[i].length == 2
+2 <= n <= 10^5
+-10^5 <= nums[i], ui, vi <= 10^5
+There exists some nums that has adjacentPairs as its pairs.
+
+
+
+===================================Solution=======================================
+
+Python
+
+class Solution:
+    def restoreArray(self, adjacentPairs: List[List[int]]) -> List[int]:
+		# create the map 
+        adj = collections.defaultdict(list)
+        for a, b in adjacentPairs:
+            adj[a].append(b)
+            adj[b].append(a)
+
+		# find the start num
+        start = adjacentPairs[0][0]
+        for k, v in adj.items():
+            if len(v) ==1:
+                start = k
+                break
+				
+		# dfs to connect the graph
+        nums=[]
+        seen = set()
+        def dfs(num):
+            seen.add(num)
+            for next_num in adj[num]:
+                if next_num in seen: continue
+                dfs(next_num)
+            nums.append(num) 
+        dfs(start)
+        return nums
+
+# The problem is about reconstructing a list of numbers, given only the adjacent pairs. 
+
+# In the original list, the first and last numbers will only appear once in the list of adjacent pairs because they don't have two neighbors. All other numbers will appear twice because they each have two neighbors.
+
+# Therefore, by counting the occurrences of each number in the adjacentPairs list, you can determine which numbers are the start and end points.
+
+# From there, you can construct the list by following the chain of adjacent pairs.
+
+from collections import defaultdict
+from typing import List
+
+class Solution:
+    def restoreArray(self, adjacentPairs: List[List[int]]) -> List[int]:
+        # Step 1: Construct a mapping from each number to its adjacent numbers
+        adjacency_map = defaultdict(list)
+        for u, v in adjacentPairs:
+            adjacency_map[u].append(v)
+            adjacency_map[v].append(u)
+        
+        # Step 2: Find the starting number (it will appear only once in the mapping)
+        for num, adjacents in adjacency_map.items():
+            if len(adjacents) == 1:  # A starting or ending number
+                start = num
+                break
+
+        # Step 3: Construct the result by following the chain
+        result = [start]
+        while len(result) < len(adjacency_map):
+            # Get the current number's adjacent numbers
+            # result[-1] always gives the last appended number, and we search its adjacent numbers in our adjacency map
+            current_adjacents = adjacency_map[result[-1]]
+
+            # If we're at the start, pick the first adjacent number
+            if len(result) == 1:
+                next_num = current_adjacents[0]
+            # Otherwise, pick the number that's not the one we just came from
+            elif current_adjacents[0] == result[-2]:
+                next_num = current_adjacents[1]
+            else:
+                next_num = current_adjacents[0]
+            
+            result.append(next_num)
+
+        return result
+
+
+#  If there's only one number in the adjacency list of the current number, pick that one (this happens for the start and end numbers).
+#  Otherwise, pick the number from the adjacency list that isn't the one we just came from.
+
+#  adjacentPairs = [[2,1],[3,4],[3,2]]:
+"""
+Step 1: We will construct adjacency_map:
+{
+ 1: [2], 
+ 2: [1,3], 
+ 3: [4,2], 
+ 4: [3]
+}
+
+
+
+
+"""
+
+# 4. Reviewing Your Answer:
+"""The approach you were going for seemed like it was trying to construct a mapping between numbers and their adjacent numbers, which is a step in the right direction!
+
+However:
+
+Your use of set() for num_set is incorrect. You probably meant to use a dict().
+Even then, a number can have two adjacents, so we should use a list to store adjacents. That's why the defaultdict(list) is useful.
+Your code only captures one adjacent number for each number, which is not enough.
+Your code doesn't have the logic to follow the chain of adjacent pairs to reconstruct the list."""
+
+# To improve:
+"""Use a defaultdict(list) to store all adjacent numbers.
+Identify the start point and then traverse the adjacency pairs to construct the original list."""
+
+"""
+class Solution:
+    def restoreArray(self, adjacentPairs: List[List[int]]) -> List[int]:
+        if len(adjacentPairs) == 1:
+            return adjacentPairs[0]
+        num_set = set() 
+        #(2:1,3), (nums[i]:nums[i-1],nums[i+1])
+        for num_pair in adjacentPairs:
+            num_set[num_pair[0]] = num_pair[1]
+            # num_set will be 
+            #(2:1,
+            # 3:4,2)
+"""
+
+
+
+
+class Solution:
+
+    def restoreArray(self, adjacentPairs: List[List[int]]) -> List[int]:
+        # [[4, -2], [1, 4], [-3, 1]]
+
+        # 4 -> 1, -2 
+        # -2 -> 4 
+        # 1 -> 4, -3 
+        # -3 -> 1 
+
+        # [-2, 4, 1, -3]
+        # 
+
+        # make adjacency list 
+        adj = collections.defaultdict(list)
+
+        for src, dst in adjacentPairs: 
+            adj[src].append(dst)
+            adj[dst].append(src)
+        
+        # hashset connected to linked list 
+
+        ans = []
+        seen = set()
+        stack = [x for x in adj if len(adj[x]) == 1]
+        while stack: 
+            n = stack.pop()
+            ans.append(n)
+            seen.add(n)
+            for nn in adj[n]: 
+                if nn not in seen: stack.append(nn)
+        ans = ans[0: len(ans) - 1]
+        return ans 
+        
+
+
+
+TestCase 1:
+Input
+adjacentPairs =
+[[2,1],[3,4],[3,2]]
+Output
+[4,3,2,1]
+Expected
+[4,3,2,1]
+
+TestCase 2:
+Input
+adjacentPairs =
+[[4,-2],[1,4],[-3,1]]
+Output
+[-3,1,4,-2]
+Expected
+[-2,4,1,-3]
+
+TestCase 3:
+Input
+adjacentPairs =
+[[100000,-100000]]
+Output
+[-100000,100000]
+Expected
+[100000,-100000]

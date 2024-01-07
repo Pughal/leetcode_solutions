@@ -1,0 +1,165 @@
+Given an integer array nums, return the number of all the arithmetic subsequences of nums.
+
+A sequence of numbers is called arithmetic if it consists of at least three elements and if the difference between any two consecutive elements is the same.
+
+For example, [1, 3, 5, 7, 9], [7, 7, 7, 7], and [3, -1, -5, -9] are arithmetic sequences.
+For example, [1, 1, 2, 5, 7] is not an arithmetic sequence.
+A subsequence of an array is a sequence that can be formed by removing some elements (possibly none) of the array.
+
+For example, [2,5,10] is a subsequence of [1,2,1,2,4,1,5,10].
+The test cases are generated so that the answer fits in 32-bit integer.
+
+ 
+
+Example 1:
+
+Input: nums = [2,4,6,8,10]
+Output: 7
+Explanation: All arithmetic subsequence slices are:
+[2,4,6]
+[4,6,8]
+[6,8,10]
+[2,4,6,8]
+[4,6,8,10]
+[2,4,6,8,10]
+[2,6,10]
+
+
+Example 2:
+
+Input: nums = [7,7,7,7,7]
+Output: 16
+Explanation: Any subsequence of this array is arithmetic.
+ 
+
+Constraints:
+
+1  <= nums.length <= 1000
+-2^31 <= nums[i] <= 2^31 - 1
+
+
+====================================Solution=======================================
+
+Python
+
+
+class Solution:
+    def numberOfArithmeticSlices(self, nums: List[int]) -> int:
+        n = len(nums)
+        total_count = 0  
+        dp = [defaultdict(int) for _ in range(n)]
+
+        for i in range(1, n):
+            for j in range(i):
+                diff = nums[i] - nums[j]
+                dp[i][diff] += 1  
+                if diff in dp[j]:
+                    dp[i][diff] += dp[j][diff]
+                    total_count += dp[j][diff]
+
+        return total_count
+
+class Solution:
+    # def numberOfArithmeticSlices(self, nums: List[int]) -> int:
+    #     dp = Counter()
+    #     n = len(nums)
+    #     s = 0
+    #     for i in range(n):
+    #         for j in range(i):
+    #             dd = nums[i] - nums[j]
+    #             c = dp[j, dd]
+    #             dp[i, dd] += c + 1
+    #             s += c
+    #     return s
+        
+    def numberOfArithmeticSlices(self, nums: List[int]) -> int:
+        unused = Counter(nums)
+        wait = defaultdict(Counter)
+        used = Counter()
+        total = 0
+        for i, n in enumerate(nums):
+            if n in wait:
+                total += wait[n].total()
+                for d in wait[n]:
+                    if unused[n+d]:
+                        wait[n+d][d] += wait[n][d]
+            for m in used:
+                d = n-m
+                if n+d in unused and unused[n+d]:
+                    wait[n+d][d] += used[m]
+            used[n] += 1
+            unused[n] -= 1
+        return total
+
+# class Solution:
+#     def numberOfArithmeticSlices(self, nums: List[int]) -> int:
+#         n = len(nums)
+#         if n<3: return 0
+#         def _default_factory():
+#             return defaultdict(int)
+#         dp = defaultdict(_default_factory)
+#         res = 0
+#         for i in range(1, n):
+#             for j in range(i):
+#                 td = nums[i]-nums[j]
+#                 dp[i][td] += dp[j][td]+1
+#             res += sum(dp[i].values())
+#         return res-n*(n-1)//2
+
+# Example 1:
+# i=1: 
+# # j=0: td=2; dp2[1][2]=1; dp[1][2]=0; 
+# # res=0;
+# i=2: 
+# # j=0: td=4; dp2[2][4]=1; dp[2][4]=0;
+# # j=1: td=2; dp2[2][2]=1; dp[2][2]=1;
+# # res=1
+# i=3:
+# # j=0: td=6; dp2[3][6]=1; dp[3][6]=0;
+# # j=1: td=4; dp2[3][4]=1; dp[3][4]=0;
+# # j=2: td=2; dp2[3][2]=1; dp[3][2]=2;
+# # res=3
+# i=4:
+# # j=0: td=8; dp2[4][8]=1; dp[4][8]=0;
+# # j=1: td=6; dp2[4][6]=1; dp[4][6]=0;
+# # j=2: td=4; dp2[4][4]=1; dp[4][4]=1;
+# # j=3: td=2; dp2[4][2]=1; dp[4][2]=3;
+# # res=7
+
+# Example 2:
+# i=1: 
+# # j=0: td=0; dp2[1][0]=1; dp[1][0]=0; 
+# # res=0;
+# i=2: 
+# # j=0: td=0; dp2[2][0]=1; dp[2][0]=0;
+# # j=1: td=0; dp2[2][0]=2; dp[2][0]=1;
+# # res=1
+# i=3:
+# # j=0: td=0; dp2[3][0]=1; dp[3][0]=0;
+# # j=1: td=0; dp2[3][0]=2; dp[3][0]=1;
+# # j=2: td=0; dp2[3][0]=3; dp[3][0]=4;
+# # res=5
+# i=4:
+# # j=0: td=0; dp2[4][0]=1; dp[4][0]=0;
+# # j=1: td=0; dp2[4][0]=2; dp[4][0]=1;
+# # j=2: td=0; dp2[4][0]=3; dp[4][0]=4;
+# # j=3: td=0; dp2[4][0]=4; dp[4][0]=11;
+# # res=16
+
+TestCase 1:
+Input
+nums =
+[2,4,6,8,10]
+Output
+7
+Expected
+7
+
+TestCase 2:
+Input
+nums =
+[7,7,7,7,7]
+Output
+16
+Expected
+16

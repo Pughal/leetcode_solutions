@@ -1,0 +1,96 @@
+Given an array of strings strs, group the anagrams together. You can return the answer in any order.
+
+An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
+
+ 
+
+Example 1:
+
+Input: strs = ["eat","tea","tan","ate","nat","bat"]
+Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
+
+
+Example 2:
+
+Input: strs = [""]
+Output: [[""]]
+
+
+Example 3:
+
+Input: strs = ["a"]
+Output: [["a"]]
+ 
+
+Constraints:
+
+1 <= strs.length <= 10^4
+0 <= strs[i].length <= 100
+strs[i] consists of lowercase English letters.
+
+
+
+=========================================Solution=============================================
+
+Python
+
+class Solution:
+  def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+    group = collections.defaultdict(list)
+
+    for str in strs:
+      key = ''.join(sorted(str))
+      group[key].append(str)
+
+    return group.values()
+
+
+class Solution:
+    def groupAnagrams(self, strs):
+        anagrams_dict = {}
+
+        for word in strs:
+            sorted_word = ' '.join(sorted(word))
+            if sorted_word in anagrams_dict:
+                anagrams_dict[sorted_word].append(word)
+            else:
+                anagrams_dict[sorted_word] = [word]
+
+
+        grouped_anagrams = list(anagrams_dict.values())
+        return grouped_anagrams
+
+
+input_strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
+solution = Solution()
+output_result = solution.groupAnagrams(input_strs)
+print(output_result)     
+
+
+
+TestCase 1:
+Input
+strs =
+["eat","tea","tan","ate","nat","bat"]
+Output
+[["eat","tea","ate"],["tan","nat"],["bat"]]
+Expected
+[["bat"],["nat","tan"],["ate","eat","tea"]]
+
+TestCase 2:
+Input
+strs =
+[""]
+Output
+[[""]]
+Expected
+[[""]]
+
+TestCase 3:
+Input
+strs =
+["a"]
+Output
+[["a"]]
+Expected
+[["a"]]

@@ -1,0 +1,98 @@
+Given two integers left and right that represent the range [left, right], return the bitwise AND of all numbers in this range, inclusive.
+
+ 
+
+Example 1:
+
+Input: left = 5, right = 7
+Output: 4
+
+
+Example 2:
+
+Input: left = 0, right = 0
+Output: 0
+
+
+Example 3:
+
+Input: left = 1, right = 2147483647
+Output: 0
+ 
+
+Constraints:
+
+0 <= left <= right <= 2^31 - 1
+
+
+===========================================Solution============================================
+
+Python
+
+class Solution:
+  def rangeBitwiseAnd(self, m: int, n: int) -> int:
+    return self.rangeBitwiseAnd(m >> 1, n >> 1) << 1 if m < n else m
+
+
+class Solution:
+    def rangeBitwiseAnd(self, left: int, right: int) -> int:
+        while (right > left):  # Loop until right is no longer greater than left
+            right = right & (right - 1) # Clear the least significant bit of right
+        return right & left    # Return the bitwise AND of the modified right and left
+          
+  class Solution:
+    def rangeBitwiseAnd(self, left: int, right: int) -> int:
+        # Initialize a variable 'shift' to 0.
+        shift = 0
+        
+        # While the left and right limits are not equal,
+        while left < right:
+            
+            # Right shift the left limit by 1 bit.
+            left >>= 1
+            
+            # Right shift the right limit by 1 bit.
+            right >>= 1
+            
+            # Increment the 'shift' variable by 1.
+            shift += 1
+        
+        # Left shift the left limit by 'shift' bits and return the result.
+        return left << shift
+
+
+
+
+
+TestCase 1:
+Input
+left =
+5
+right =
+7
+Output
+4
+Expected
+4
+
+TestCase 2:
+Input
+left =
+0
+right =
+0
+Output
+0
+Expected
+0
+
+TestCase 3:
+Input
+left =
+1
+right =
+2147483647
+Output
+0
+Expected
+0

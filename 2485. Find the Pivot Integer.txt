@@ -1,0 +1,105 @@
+Given a positive integer n, find the pivot integer x such that:
+
+The sum of all elements between 1 and x inclusively equals the sum of all elements between x and n inclusively.
+Return the pivot integer x. If no such integer exists, return -1. It is guaranteed that there will be at most one pivot index for the given input.
+
+ 
+
+Example 1:
+
+Input: n = 8
+Output: 6
+Explanation: 6 is the pivot integer since: 1 + 2 + 3 + 4 + 5 + 6 = 6 + 7 + 8 = 21.
+
+
+Example 2:
+
+Input: n = 1
+Output: 1
+Explanation: 1 is the pivot integer since: 1 = 1.
+
+
+Example 3:
+
+Input: n = 4
+Output: -1
+Explanation: It can be proved that no such integer exist.
+ 
+
+Constraints:
+
+1 <= n <= 1000
+
+
+=====================================Solution=============================================
+
+Python
+
+
+class Solution:
+  def pivotInteger(self, n: int) -> int:
+    # 1 + 2 + ... + x = x + ... + n
+    # (1 + x) * x // 2 = (x + n) * (n - x + 1) // 2
+    #         x + x^2 = nx - x^2 + x + n^2 - nx + n
+    #         2 * x^2 = n^2 + n
+    #               x = sqrt((n^2 + n) // 2)
+    y = (n * n + n) // 2
+    x = int(math.sqrt(y))
+    return x if x * x == y else -1
+
+
+
+class Solution:
+    def pivotInteger(self, n: int) -> int:
+        # Initialize left and right pointers for binary search
+        left, right = 1, n
+        
+        # Calculate the total sum of the sequence
+        total_sum = n * (n + 1) // 2
+
+        # Binary search for the pivot point
+        while left < right:
+            # Calculate the mid-point
+            mid = (left + right) // 2
+
+            # Check if the difference between the square of mid and the total sum is negative
+            if mid * mid - total_sum < 0:
+                left = mid + 1  # Adjust the left bound if the sum is smaller
+            else:
+                right = mid  # Adjust the right bound if the sum is equal or greater
+
+        # Check if the square of the left pointer minus the total sum is zero
+        if left * left - total_sum == 0:
+            return left
+        else:
+            return -1
+
+
+
+
+TestCase 1:
+Input
+n =
+8
+Output
+6
+Expected
+6
+
+TestCase 2:
+Input
+n =
+1
+Output
+1
+Expected
+1
+
+TestCase 3:
+Input
+n =
+4
+Output
+-1
+Expected
+-1

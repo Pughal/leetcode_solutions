@@ -1,0 +1,94 @@
+Given a binary array nums, return the maximum length of a contiguous subarray with an equal number of 0 and 1.
+
+ 
+
+Example 1:
+
+Input: nums = [0,1]
+Output: 2
+Explanation: [0, 1] is the longest contiguous subarray with an equal number of 0 and 1.
+
+
+Example 2:
+
+Input: nums = [0,1,0]
+Output: 2
+Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
+ 
+
+Constraints:
+
+1 <= nums.length <= 10^5
+nums[i] is either 0 or 1.
+
+
+
+======================================Solution============================================
+
+Python
+
+class Solution:
+    def findMaxLength(self, nums):
+        max_length=0
+        count=0
+        count_map={0:-1}  
+        for i, num in enumerate(nums):
+            count+=1 if num==1 else -1
+            if count in count_map:
+                max_length = max(max_length,i-count_map[count])
+            else:
+                count_map[count]=i
+        return max_length                
+
+
+class Solution:
+    def findMaxLength(self, nums: List[int]) -> int:
+        max_len = 0
+        total_map = {0: -1}
+        total = 0
+
+        for i in range(len(nums)):
+            if nums[i] == 0:
+                total -= 1
+            else:
+                total += 1
+
+            if total in total_map:
+                max_len = max(max_len, i - total_map[total])
+            else:
+                total_map[total] = i
+
+        return max_len
+
+        
+class Solution:
+  def findMaxLength(self, nums: List[int]) -> int:
+    ans = 0
+    prefix = 0
+    prefixToIndex = {0: -1}
+
+    for i, num in enumerate(nums):
+      prefix += 1 if num else -1
+      ans = max(ans, i - prefixToIndex.setdefault(prefix, i))
+
+    return ans
+
+
+
+TestCase 1:
+Input
+nums =
+[0,1]
+Output
+2
+Expected
+2
+
+TestCase 2:
+Input
+nums =
+[0,1,0]
+Output
+2
+Expected
+2

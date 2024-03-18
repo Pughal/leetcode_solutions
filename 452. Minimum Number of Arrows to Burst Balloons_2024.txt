@@ -1,0 +1,153 @@
+There are some spherical balloons taped onto a flat wall that represents the XY-plane. 
+The balloons are represented as a 2D integer array points where points[i] = [xstart, xend] denotes a balloon whose horizontal diameter stretches between xstart and xend. 
+You do not know the exact y-coordinates of the balloons.
+
+Arrows can be shot up directly vertically (in the positive y-direction) from different points along the x-axis. 
+A balloon with xstart and xend is burst by an arrow shot at x if xstart <= x <= xend. There is no limit to the number of arrows that can be shot. 
+A shot arrow keeps traveling up infinitely, bursting any balloons in its path.
+
+Given the array points, return the minimum number of arrows that must be shot to burst all balloons.
+
+ 
+
+Example 1:
+
+Input: points = [[10,16],[2,8],[1,6],[7,12]]
+Output: 2
+Explanation: The balloons can be burst by 2 arrows:
+- Shoot an arrow at x = 6, bursting the balloons [2,8] and [1,6].
+- Shoot an arrow at x = 11, bursting the balloons [10,16] and [7,12].
+
+
+Example 2:
+
+Input: points = [[1,2],[3,4],[5,6],[7,8]]
+Output: 4
+Explanation: One arrow needs to be shot for each balloon for a total of 4 arrows.
+
+
+Example 3:
+
+Input: points = [[1,2],[2,3],[3,4],[4,5]]
+Output: 2
+Explanation: The balloons can be burst by 2 arrows:
+- Shoot an arrow at x = 2, bursting the balloons [1,2] and [2,3].
+- Shoot an arrow at x = 4, bursting the balloons [3,4] and [4,5].
+ 
+
+Constraints:
+
+1 <= points.length <= 10^5
+points[i].length == 2
+-2^31 <= xstart < xend <= 2^31 - 1
+
+
+
+===========================================Solution================================================
+
+Python
+
+class Solution:
+  def findMinArrowShots(self, points: List[List[int]]) -> int:
+    ans = 0
+    arrowX = -math.inf
+
+    for point in sorted(points, key=lambda x: x[1]):
+      if point[0] > arrowX:
+        ans += 1
+        arrowX = point[1]
+
+    return ans
+
+
+class Solution:
+    def findMinArrowShots(self, points: List[List[int]]) -> int:
+
+        # the problem sounds more complicated than it actually is. 
+
+        # here is the simple version
+
+        # given a set of intervals (potentially overlapping), return the minimum indices of x 
+        # such that each interval contains one value of x. one value can be in more than one interval. 
+        # note, the boundaries of the intervals are considered within the intervals. 
+        # note, intervals are NOT given in any specific order
+
+
+
+        """
+        input: [[10,16].[2,8],[1,6],[7,12]]
+        output: 2
+
+        input: [[1,2][3,4][5,6][7,8]]
+        output: 4
+
+        input: [[1,2][2,3],[3,4],[4,5]]
+        output: 2
+
+        solutions:
+        - one way would be to sort intervals, make list of stand-alones and overlaps, return length of this list.
+        -> this seems to be the way to go...
+        - sorted_points = sorted(points,key=lambda x: x[0])
+        """
+
+        points.sort(key=lambda x: x[0])
+
+        last, index = None, 0
+
+        while index < len(points): 
+            cur = points[index]
+            if last and last[1] >= cur[0]:
+                last[0], last[1] = max(cur[0],last[0]), min(cur[1],last[1])
+                points.pop(index)
+            else: 
+                last = cur
+                index += 1
+
+        return len(points)
+
+        # the above doesn't work. we can have n indices overlapping the same point. 
+
+        # we can iterate through (not sorted) and store ranges. 
+        # we add ranges to an array of ranges. IF our current range overlaps with existing range, 
+        # we replace range w/overlap
+        # otherwise, we increment our counter and add a new range to the list of ranges.
+
+        # how can we efficiently check if an existing range and new range overlap and return the overlap if they do?
+
+        # we would have to iterate through a list of ranges multiple times, BUT this gets very expensive if we have a
+        # list of all unique ranges (likely an edge case). 
+
+        ### THIS IS THE SOLUTION: ###
+        # what about when combining intervals, instead of saving the entire interval, we ONLY save the overlap. 
+        # then we return the length of this list. That's sounds optimal and simple.
+
+
+
+
+
+TestCase 1:
+Input
+points =
+[[10,16],[2,8],[1,6],[7,12]]
+Output
+2
+Expected
+2
+
+TestCase 2:
+Input
+points =
+[[1,2],[3,4],[5,6],[7,8]]
+Output
+4
+Expected
+4
+
+TestCase 3:
+Input
+points =
+[[1,2],[2,3],[3,4],[4,5]]
+Output
+2
+Expected
+2

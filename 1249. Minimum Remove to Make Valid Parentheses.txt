@@ -1,0 +1,170 @@
+Given a string s of '(' , ')' and lowercase English characters.
+
+Your task is to remove the minimum number of parentheses ( '(' or ')', in any positions ) so that the resulting parentheses string is valid and return any valid string.
+
+Formally, a parentheses string is valid if and only if:
+
+It is the empty string, contains only lowercase characters, or
+It can be written as AB (A concatenated with B), where A and B are valid strings, or
+It can be written as (A), where A is a valid string.
+ 
+
+Example 1:
+
+Input: s = "lee(t(c)o)de)"
+Output: "lee(t(c)o)de"
+Explanation: "lee(t(co)de)" , "lee(t(c)ode)" would also be accepted.
+
+
+Example 2:
+
+Input: s = "a)b(c)d"
+Output: "ab(c)d"
+
+
+Example 3:
+
+Input: s = "))(("
+Output: ""
+Explanation: An empty string is also valid.
+ 
+
+Constraints:
+
+1 <= s.length <= 10^5
+s[i] is either'(' , ')', or lowercase English letter.
+
+
+
+==========================================Solution===========================================
+
+Python
+
+class Solution:
+  def minRemoveToMakeValid(self, s: str) -> str:
+    stack = []  # unpaired '(' indices
+    chars = [c for c in s]
+
+    for i, c in enumerate(chars):
+      if c == '(':
+        stack.append(i)  # Record the unpaired '(' index.
+      elif c == ')':
+        if stack:
+          stack.pop()  # Find a pair
+        else:
+          chars[i] = '*'  # Mark the unpaired ')' as '*'.
+
+    # Mark the unpaired '(' as '*'.
+    while stack:
+      chars[stack.pop()] = '*'
+
+    return ''.join(chars).replace('*', '')
+
+
+"""
+Given a string s that contains parentheses, remove the minimum number
+of parens to make it valid, where each paren has a matching pair.
+
+Example:
+
+Test case:
+    "a)b(cd"
+    stack = [2]
+    result = [a, b, "", c, d]
+
+    a)e)
+    
+"""
+
+class Solution:
+    def minRemoveToMakeValid(self, s: str) -> str:
+        stack: List[int] = []
+        result: List[str] = []
+        for c in s:
+            if c == '(':
+                stack.append(len(result))
+                result.append(c)
+            elif c == ')':
+                if stack:
+                    stack.pop()
+                    result.append(c)
+            else:
+                result.append(c)
+        
+        for i in stack:
+            result[i] = ''
+        
+        return ''.join(result)
+
+
+from collections import deque
+from typing import List, Deque
+class Solution:
+    def minRemoveToMakeValid(self, s: str) -> str:
+        """
+        1. Process the string and save indexes where a closed paren does not have a matching open one
+        2. Check the remaining stack and save indexes of open parens without closed parens
+        3. Iterate through the string s again and skip characters with indexes that match invalid chars
+
+        Time: 3*O(N)
+        Space: O(N)
+        """
+        # Push: append() Pop: pop()
+        indexes_to_remove: Set[int] = set()
+        
+        # Stack: index of open paren
+        stack: Deque[index] = deque()
+        for i in range(len(s)):
+            character = s[i]
+            if character == "(":
+                stack.append(i)
+            elif character == ")":
+                if (len(stack) > 0):
+                    stack.pop()
+                # End paren without matching open paren
+                else:
+                    # Remove this closed paren
+                    indexes_to_remove.add(i)
+
+        # Determine which open parens need to be removed
+        while(len(stack) > 0):
+            index = stack.pop()
+            indexes_to_remove.add(index)
+        
+        # Reprocess the string and remove the characters that cause invalidity
+        result = ""
+        for i in range(len(s)):
+            if i in indexes_to_remove:
+                continue
+            result += s[i]
+
+        return result
+
+        
+
+TestCase 1:
+Input
+s =
+"lee(t(c)o)de)"
+Output
+"lee(t(c)o)de"
+Expected
+"lee(t(c)o)de"
+
+TestCase 2:
+Input
+s =
+"a)b(c)d"
+Output
+"ab(c)d"
+Expected
+"ab(c)d"
+
+TestCase 3:
+Input
+s =
+"))(("
+Output
+""
+Expected
+""

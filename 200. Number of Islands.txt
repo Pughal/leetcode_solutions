@@ -1,0 +1,186 @@
+Given an m x n 2D binary grid grid which represents a map of '1's (land) and '0's (water), return the number of islands.
+
+An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+
+ 
+
+Example 1:
+
+Input: grid = [
+  ["1","1","1","1","0"],
+  ["1","1","0","1","0"],
+  ["1","1","0","0","0"],
+  ["0","0","0","0","0"]
+]
+Output: 1
+
+
+Example 2:
+
+Input: grid = [
+  ["1","1","0","0","0"],
+  ["1","1","0","0","0"],
+  ["0","0","1","0","0"],
+  ["0","0","0","1","1"]
+]
+Output: 3
+ 
+
+Constraints:
+
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 300
+grid[i][j] is '0' or '1'.
+
+
+======================================Solution=========================================
+
+Python
+
+class Solution:
+  def numIslands(self, grid: List[List[str]]) -> int:
+    m = len(grid)
+    n = len(grid[0])
+
+    def dfs(i: int, j: int) -> None:
+      if i < 0 or i == m or j < 0 or j == n:
+        return
+      if grid[i][j] != '1':
+        return
+
+      grid[i][j] = '2'  # Mark '2' as visited.
+      dfs(i + 1, j)
+      dfs(i - 1, j)
+      dfs(i, j + 1)
+      dfs(i, j - 1)
+
+    ans = 0
+
+    for i in range(m):
+      for j in range(n):
+        if grid[i][j] == '1':
+          dfs(i, j)
+          ans += 1
+
+    return ans
+
+
+
+
+
+class Solution:
+    def _numIslands_old(self, grid: List[List[str]]) -> int:
+        # This is the question I got previously from CS
+        # First we pad up the grid with zeroes so that
+        # we don't have to consider edge cases
+        num_row = len(grid)
+        num_col = len(grid[0])
+        for row in grid:
+            row.insert(0, "0")
+            row.append("0")
+        grid.insert(0, ["0"] * (num_col + 2))
+        grid.append(["0"] * (num_col + 2))
+
+        # We then convert them into co-ordinates
+        coord = {}
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == "1":
+                    coord[(i, j)] = 1
+        
+        working_set = set(coord.keys())
+        islands = []
+        while working_set:
+            item = working_set.pop()
+            neighbors = [item]
+            has_changed = True
+            while has_changed:
+                has_changed = False
+                for item in list(neighbors):
+                    for i in (-1, 1):
+                        curr_coord = (item[0] + i, item[1])
+                        if curr_coord in working_set:
+                            working_set.remove(curr_coord)
+                            neighbors.append(curr_coord)
+                            has_changed = True
+                        curr_coord = (item[0], item[1] + i)
+                        if curr_coord in working_set:
+                            working_set.remove(curr_coord)
+                            neighbors.append(curr_coord)
+                            has_changed = True
+            islands.append(neighbors)
+        return len(islands)
+
+    def _numIslands_old2(self, grid: List[List[str]]) -> int:
+
+        def dfs(i: int, j: int):
+            grid[i][j] = "0"
+            if i > 0 and grid[i-1][j] == "1":
+                dfs(i-1, j)
+            if i < len(grid) - 1 and grid[i+1][j] == "1":
+                dfs(i+1, j)
+            if j > 0 and grid[i][j-1] == "1":
+                dfs(i, j-1)
+            if j < len(grid[0]) - 1 and grid[i][j+1] == "1":
+                dfs(i, j+1)
+
+        """ Let's try the DFS """
+        num_of_islands = 0
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == "1":
+                    num_of_islands += 1
+                    dfs(i, j)
+        return num_of_islands
+
+    def numIslands(self, grid: List[List[str]]) -> int:
+        # First I pad up the grid so that later I do
+        # not need to consider edges
+        num_rows = len(grid)
+        num_cols = len(grid[0])
+        grid.insert(0, [0] * num_cols)
+        grid.append([0] * num_cols)
+        for row in grid:
+            row.insert(0, 0)
+            row.append(0)
+        
+        def dfs(i: int, j: int):
+            """ This function will go through the neighbors
+            and mark them as 0 """
+            if grid[i][j] == "1":
+                grid[i][j] = "0"
+                if grid[i-1][j] == "1":
+                    dfs(i-1, j)
+                if grid[i+1][j] == "1":
+                    dfs(i+1, j)
+                if grid[i][j-1] == "1":
+                    dfs(i, j-1)
+                if grid[i][j+1] == "1":
+                    dfs(i, j+1)
+
+        num_of_islands = 0
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == "1":
+                    num_of_islands += 1
+                    dfs(i, j)
+        return num_of_islands
+
+
+
+TestCase 1:
+Input
+[["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]
+Output
+1
+Expected
+1
+
+TestCase 2:
+Input
+[["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]
+Output
+3
+Expected
+3

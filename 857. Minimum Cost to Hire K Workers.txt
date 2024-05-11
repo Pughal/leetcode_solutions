@@ -1,0 +1,133 @@
+Hard
+
+
+There are n workers. You are given two integer arrays quality and wage where quality[i] is the quality of the ith worker and wage[i] is the minimum wage expectation for the ith worker.
+
+We want to hire exactly k workers to form a paid group. To hire a group of k workers, we must pay them according to the following rules:
+
+Every worker in the paid group must be paid at least their minimum wage expectation.
+In the group, each worker's pay must be directly proportional to their quality. 
+This means if a worker’s quality is double that of another worker in the group, then they must be paid twice as much as the other worker.
+Given the integer k, return the least amount of money needed to form a paid group satisfying the above conditions. Answers within 10-5 of the actual answer will be accepted.
+
+ 
+
+Example 1:
+
+Input: quality = [10,20,5], wage = [70,50,30], k = 2
+Output: 105.00000
+Explanation: We pay 70 to 0th worker and 35 to 2nd worker.
+
+
+Example 2:
+
+Input: quality = [3,1,10,10,1], wage = [4,8,2,2,7], k = 3
+Output: 30.66667
+Explanation: We pay 4 to 0th worker, 13.33333 to 2nd and 3rd workers separately.
+ 
+
+Constraints:
+
+n == quality.length == wage.length
+1 <= k <= n <= 10^4
+1 <= quality[i], wage[i] <= 10^4
+
+
+
+
+==============================Solution==================================
+
+Python
+
+
+class Solution:
+  def mincostToHireWorkers(self, quality: List[int], wage: List[int], k: int) -> float:
+    ans = math.inf
+    qualitySum = 0
+    workers = sorted((w / q, q) for q, w in zip(quality, wage))
+    maxHeap = []
+
+    for wagePerQuality, q in workers:
+      heapq.heappush(maxHeap, -q)
+      qualitySum += q
+      if len(maxHeap) > k:
+        qualitySum += heapq.heappop(maxHeap)
+      if len(maxHeap) == k:
+        ans = min(ans, qualitySum * wagePerQuality)
+
+    return ans
+
+
+class Solution:
+    def mincostToHireWorkers(self, quality: List[int], wage: List[int], k: int) -> float:
+        # sort the workers by wage/quality (minimum hourly wage),
+        # iterate through all the hourly wage levels,
+        # as we increase the hourly wave level, we will have more workers become available
+        # and we just need to pick k workers with lowest quality
+        # so we maintain a maxheap that keeps track of k lowest quality workers
+        
+        workers = sorted([(wage[i]/quality[i], quality[i]) for i in range(len(quality))])
+        heap = []
+        qsum = 0
+        ans = None
+        for i, (hourly, q) in enumerate(workers):
+            heapq.heappush(heap, -q)
+            qsum += q
+            if len(heap) > k:
+                qsum += heapq.heappop(heap)  # it's actually removing from qsum
+            if len(heap) == k:
+                if ans is None or ans > qsum*hourly:
+                    ans = qsum*hourly
+        return ans
+            
+                
+            
+class Solution:
+    def mincostToHireWorkers(self, quality: List[int], wage: List[int], k: int) -> float:
+        # --- Sort Workers by Ratio
+        workers = [(w/q, q) for w, q in zip(wage, quality)]
+        workers.sort()
+
+        # --- Initialize Quality Max-Heap
+        paid_group = [-1*q for r, q in workers[:k]]
+        heapq.heapify(paid_group)
+        sum_q = -1 * sum(paid_group)
+
+        # --- Initialize Cost with Captain = K
+        cost = sum_q * workers[k-1][0]
+
+        # --- Test more expensive Captains.
+        #       higher captain's ratio may be worth it if we can reduce sum_q
+        for ratio, q in workers[k:]:
+            sum_q += q + heapq.heappushpop(paid_group, -q)
+            temp = ratio * sum_q
+            cost = min(cost, temp)
+
+        return cost
+
+
+TestCase 1:
+Input
+quality =
+[10,20,5]
+wage =
+[70,50,30]
+k =
+2
+Output
+105.00000
+Expected
+105.00000
+
+TestCase 2:
+Input
+quality =
+[3,1,10,10,1]
+wage =
+[4,8,2,2,7]
+k =
+3
+Output
+30.66667
+Expected
+30.66667

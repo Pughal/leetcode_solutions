@@ -1,0 +1,119 @@
+In a gold mine grid of size m x n, each cell in this mine has an integer representing the amount of gold in that cell, 0 if it is empty.
+
+Return the maximum amount of gold you can collect under the conditions:
+
+Every time you are located in a cell you will collect all the gold in that cell.
+From your position, you can walk one step to the left, right, up, or down.
+You can't visit the same cell more than once.
+Never visit a cell with 0 gold.
+You can start and stop collecting gold from any position in the grid that has some gold.
+ 
+
+Example 1:
+
+Input: grid = [[0,6,0],[5,8,7],[0,9,0]]
+Output: 24
+Explanation:
+[[0,6,0],
+ [5,8,7],
+ [0,9,0]]
+Path to get the maximum gold, 9 -> 8 -> 7.
+
+
+Example 2:
+
+Input: grid = [[1,0,7],[2,0,6],[3,4,5],[0,3,0],[9,0,20]]
+Output: 28
+Explanation:
+[[1,0,7],
+ [2,0,6],
+ [3,4,5],
+ [0,3,0],
+ [9,0,20]]
+Path to get the maximum gold, 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7.
+ 
+
+Constraints:
+
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 15
+0 <= grid[i][j] <= 100
+There are at most 25 cells containing gold.
+
+
+
+======================================Solution===========================================
+
+Python
+
+
+class Solution:
+  def getMaximumGold(self, grid: List[List[int]]) -> int:
+    def dfs(i: int, j: int) -> int:
+      if i < 0 or j < 0 or i == len(grid) or j == len(grid[0]):
+        return 0
+      if grid[i][j] == 0:
+        return 0
+
+      gold = grid[i][j]
+      grid[i][j] = 0  # Mark as visited.
+      maxPath = max(dfs(i + 1, j), dfs(i - 1, j),
+                    dfs(i, j + 1), dfs(i, j - 1))
+      grid[i][j] = gold
+      return gold + maxPath
+
+    return max(dfs(i, j)
+               for i in range(len(grid))
+               for j in range(len(grid[0])))
+
+
+
+from typing import List
+
+class Solution:
+    def getMaximumGold(self, grid: List[List[int]]) -> int:
+        maxGold = 0
+        
+        def backtrack(row, col, grid, currentGold):
+            nonlocal maxGold
+            if row < 0 or row >= len(grid) or col < 0 or col >= len(grid[0]) or grid[row][col] == 0:
+                return
+            currentGold += grid[row][col]
+            maxGold = max(maxGold, currentGold)
+            temp = grid[row][col]
+            grid[row][col] = 0  # Mark as visited
+            backtrack(row + 1, col, grid, currentGold)
+            backtrack(row - 1, col, grid, currentGold)
+            backtrack(row, col + 1, grid, currentGold)
+            backtrack(row, col - 1, grid, currentGold)
+            grid[row][col] = temp  # Backtrack
+            
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] != 0:
+                    backtrack(i, j, grid, 0)
+        
+        return maxGold
+
+
+
+
+
+TestCase 1:
+Input
+grid =
+[[0,6,0],[5,8,7],[0,9,0]]
+Output
+24
+Expected
+24
+
+TestCase 2:
+Input
+grid =
+[[1,0,7],[2,0,6],[3,4,5],[0,3,0],[9,0,20]]
+Output
+28
+Expected
+28

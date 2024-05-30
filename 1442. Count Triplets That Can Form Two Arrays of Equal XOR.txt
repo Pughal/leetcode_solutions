@@ -1,0 +1,107 @@
+Given an array of integers arr.
+
+We want to select three indices i, j and k where (0 <= i < j <= k < arr.length).
+
+Let's define a and b as follows:
+
+a = arr[i] ^ arr[i + 1] ^ ... ^ arr[j - 1]
+b = arr[j] ^ arr[j + 1] ^ ... ^ arr[k]
+Note that ^ denotes the bitwise-xor operation.
+
+Return the number of triplets (i, j and k) Where a == b.
+
+ 
+
+Example 1:
+
+Input: arr = [2,3,1,6,7]
+Output: 4
+Explanation: The triplets are (0,1,2), (0,2,2), (2,3,4) and (2,4,4)
+
+
+Example 2:
+
+Input: arr = [1,1,1,1,1]
+Output: 10
+ 
+
+Constraints:
+
+1 <= arr.length <= 300
+1 <= arr[i] <= 10^8
+
+
+
+===============================Solution==============================
+
+Python
+
+class Solution:
+  def countTriplets(self, arr: List[int]) -> int:
+    ans = 0
+    xors = [0]
+    prefix = 0
+
+    for i, a in enumerate(arr):
+      prefix ^= a
+      xors.append(prefix)
+
+    for j in range(1, len(arr)):
+      for i in range(0, j):
+        xors_i = xors[j] ^ xors[i]
+        for k in range(j, len(arr)):
+          xors_k = xors[k + 1] ^ xors[j]
+          if xors_i == xors_k:
+            ans += 1
+
+    return ans
+
+
+
+class Solution:
+    def countTriplets(self, arr: List[int]) -> int:
+        # Inserting 0 at the beginning of the array to handle the case when XOR operation is performed on the first element
+        array = [0] + arr
+        
+        size = len(array)
+        res = 0
+
+        # Performing XOR operation on the array elements
+        for i in range(1, size):
+            array[i] ^= array[i - 1]
+
+        # Dictionaries to store counts and totals of XOR values encountered
+        count_map = defaultdict(int)
+        total_map = defaultdict(int)
+
+        # Iterating through the array
+        for i in range(size):
+            # Calculating contribution of current element to the result
+            res += count_map[array[i]] * (i - 1) - total_map[array[i]]
+
+            # Updating total count of current XOR value
+            total_map[array[i]] += i
+            count_map[array[i]] += 1
+
+        # Returning the final result
+        return res
+
+
+
+TestCase 1:
+Input
+arr =
+[2,3,1,6,7]
+Output
+4
+Expected
+4
+
+TestCase 2:
+Input
+arr =
+[1,1,1,1,1]
+Output
+10
+Expected
+10

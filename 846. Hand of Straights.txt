@@ -1,0 +1,104 @@
+Alice has some number of cards and she wants to rearrange the cards into groups so that each group is of size groupSize, and consists of groupSize consecutive cards.
+
+Given an integer array hand where hand[i] is the value written on the ith card and an integer groupSize, return true if she can rearrange the cards, or false otherwise.
+
+ 
+
+Example 1:
+
+Input: hand = [1,2,3,6,2,3,4,7,8], groupSize = 3
+Output: true
+Explanation: Alice's hand can be rearranged as [1,2,3],[2,3,4],[6,7,8]
+
+
+Example 2:
+
+Input: hand = [1,2,3,4,5], groupSize = 4
+Output: false
+Explanation: Alice's hand can not be rearranged into groups of 4.
+
+ 
+
+Constraints:
+
+1 <= hand.length <= 10^4
+0 <= hand[i] <= 10^9
+1 <= groupSize <= hand.length
+ 
+
+Note: This question is the same as 1296: https://leetcode.com/problems/divide-array-in-sets-of-k-consecutive-numbers/
+
+
+
+
+==========================================Solution============================================
+
+Python
+
+class Solution:
+  def isNStraightHand(self, hand: List[int], groupSize: int) -> bool:
+    count = collections.Counter(hand)
+
+    for start in sorted(count):
+      value = count[start]
+      if value > 0:
+        for i in range(start, start + groupSize):
+          count[i] -= value
+          if count[i] < 0:
+            return False
+
+    return True
+
+
+class Solution:
+    def isNStraightHand(self, hand: List[int], groupSize: int) -> bool:
+        """
+        O(N lg N) solution requires using a dequee to manage open straight hands rather than returning the pointer to each next number each time.
+        """
+
+        hand.sort()
+
+        dq = collections.deque([])
+
+        #print(card_ct)
+        for card in hand:
+            #print(card)
+            if len(dq) >0:
+                if dq[-1][1] == card -1:
+                    item = dq.pop()
+                    item[0] += 1
+                    item[1] = card
+                elif dq[-1][1] == card:
+                    item = [1,card]
+                else:
+                    return False # in this case there will not be anything to fill the open straight
+            else:
+                item = [1,card]
+        
+            if item[0] < groupSize:
+                dq.appendleft(item) # move it to left so we can deal with new new ones 
+           
+
+        return len(dq) == 0
+
+TestCase 1:
+Input
+hand =
+[1,2,3,6,2,3,4,7,8]
+groupSize =
+3
+Output
+true
+Expected
+true
+
+TestCase 2:
+Input
+hand =
+[1,2,3,4,5]
+groupSize =
+4
+Output
+false
+Expected
+false

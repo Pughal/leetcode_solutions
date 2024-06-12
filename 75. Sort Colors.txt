@@ -1,0 +1,124 @@
+Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
+
+We will use the integers 0, 1, and 2 to represent the color red, white, and blue, respectively.
+
+You must solve this problem without using the library's sort function.
+
+ 
+
+Example 1:
+
+Input: nums = [2,0,2,1,1,0]
+Output: [0,0,1,1,2,2]
+
+
+Example 2:
+
+Input: nums = [2,0,1]
+Output: [0,1,2]
+ 
+
+Constraints:
+
+n == nums.length
+1 <= n <= 300
+nums[i] is either 0, 1, or 2.
+ 
+
+Follow up: Could you come up with a one-pass algorithm using only constant extra space?
+
+
+======================================Solution=========================================
+
+Python
+
+
+class Solution:
+  def sortColors(self, nums: List[int]) -> None:
+    l = 0  # The next 0 should be placed in l.
+    r = len(nums) - 1  # THe next 2 should be placed in r.
+
+    i = 0
+    while i <= r:
+      if nums[i] == 0:
+        nums[i], nums[l] = nums[l], nums[i]
+        i += 1
+        l += 1
+      elif nums[i] == 1:
+        i += 1
+      else:
+        # We may swap a 0 to index i, but we're still not sure whether this 0
+        # is placed in the correct index, so we can't move pointer i.
+        nums[i], nums[r] = nums[r], nums[i]
+        r -= 1
+
+
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        start,mid,end=0,0,len(nums)-1
+    
+        while mid<=end:
+            if nums[mid]==0:
+                nums[start],nums[mid]=nums[mid],nums[start]
+                mid+=1
+                start+=1
+            elif nums[mid]==1:
+                mid+=1
+            elif nums[mid]==2:
+                nums[mid],nums[end]=nums[end],nums[mid]
+                end-=1
+
+
+
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        #bucketsort O(n) O(3) = O(1)
+        m = dict()
+        for n in nums:
+            m[n] = m.get(n,0) + 1
+        s = 0
+        for i in (0,1,2):
+            if i in m:
+                for j in range(s, s + m[i]):
+                    nums[j] = i
+                s = j + 1
+        
+
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        for i in range(len(nums)):
+            
+            for j in range(i+1,len(nums)):
+                if nums[j]<nums[i]:
+                    nums[i],nums[j]=nums[j],nums[i]
+        
+                
+
+                    
+        
+TestCase 1:
+Input
+nums =
+[2,0,2,1,1,0]
+Output
+[0,0,1,1,2,2]
+Expected
+[0,0,1,1,2,2]
+
+TestCase 2:
+Input
+nums =
+[2,0,1]
+Output
+[0,1,2]
+Expected
+[0,1,2]

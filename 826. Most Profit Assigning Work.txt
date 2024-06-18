@@ -1,0 +1,112 @@
+You have n jobs and m workers. You are given three arrays: difficulty, profit, and worker where:
+
+difficulty[i] and profit[i] are the difficulty and the profit of the ith job, and
+worker[j] is the ability of jth worker (i.e., the jth worker can only complete a job with difficulty at most worker[j]).
+Every worker can be assigned at most one job, but one job can be completed multiple times.
+
+For example, if three workers attempt the same job that pays $1, then the total profit will be $3. If a worker cannot complete any job, their profit is $0.
+Return the maximum profit we can achieve after assigning the workers to the jobs.
+
+ 
+
+Example 1:
+
+Input: difficulty = [2,4,6,8,10], profit = [10,20,30,40,50], worker = [4,5,6,7]
+Output: 100
+Explanation: Workers are assigned jobs of difficulty [4,4,6,6] and they get a profit of [20,20,30,30] separately.
+
+
+Example 2:
+
+Input: difficulty = [85,47,57], profit = [24,66,99], worker = [40,25,25]
+Output: 0
+ 
+
+Constraints:
+
+n == difficulty.length
+n == profit.length
+m == worker.length
+1 <= n, m <= 10^4
+1 <= difficulty[i], profit[i], worker[i] <= 10^5
+
+
+
+========================================Solution========================================
+
+Python
+
+class Solution:
+  def maxProfitAssignment(self, difficulty: List[int], profit: List[int], worker: List[int]) -> int:
+    ans = 0
+    jobs = sorted(zip(difficulty, profit))
+    worker.sort(reverse=1)
+
+    i = 0
+    maxProfit = 0
+
+    for w in sorted(worker):
+      while i < len(jobs) and w >= jobs[i][0]:
+        maxProfit = max(maxProfit, jobs[i][1])
+        i += 1
+      ans += maxProfit
+
+    return ans
+
+
+
+class Solution:
+    def maxProfitAssignment(self, difficulty: List[int], profit: List[int], worker: List[int]) -> int:
+        
+        # jobs, worker matrix
+        # max of each worker
+        W = len(worker)
+        J = len(profit)
+        #job_worker_m = [[0]*W for _ in J]
+        ans = 0
+        ## greedy, sort by profit
+        si = [i for i in range(J)]
+        si.sort(key=lambda i : -profit[i])
+        for w in range(W):
+            max_profit_worker = 0
+            for j in range(J):
+                if difficulty[si[j]]<= worker[w]:
+                    
+                    #job_worker_m[j][w] = profit[j]
+                    max_profit_worker = max(max_profit_worker, profit[si[j]])
+                    break
+            ans += max_profit_worker
+        return ans
+
+
+
+
+
+
+
+TestCase 1:
+Input
+difficulty =
+[2,4,6,8,10]
+profit =
+[10,20,30,40,50]
+worker =
+[4,5,6,7]
+Output
+100
+Expected
+100
+
+TestCase 2:
+Input
+difficulty =
+[85,47,57]
+profit =
+[24,66,99]
+worker =
+[40,25,25]
+Output
+0
+Expected
+0
+

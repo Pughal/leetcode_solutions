@@ -1,0 +1,163 @@
+Given an array of integers nums and an integer limit, 
+return the size of the longest non-empty subarray such that the absolute difference between any two elements of this subarray is less than or equal to limit.
+
+ 
+
+Example 1:
+
+Input: nums = [8,2,4,7], limit = 4
+Output: 2 
+Explanation: All subarrays are: 
+[8] with maximum absolute diff |8-8| = 0 <= 4.
+[8,2] with maximum absolute diff |8-2| = 6 > 4. 
+[8,2,4] with maximum absolute diff |8-2| = 6 > 4.
+[8,2,4,7] with maximum absolute diff |8-2| = 6 > 4.
+[2] with maximum absolute diff |2-2| = 0 <= 4.
+[2,4] with maximum absolute diff |2-4| = 2 <= 4.
+[2,4,7] with maximum absolute diff |2-7| = 5 > 4.
+[4] with maximum absolute diff |4-4| = 0 <= 4.
+[4,7] with maximum absolute diff |4-7| = 3 <= 4.
+[7] with maximum absolute diff |7-7| = 0 <= 4. 
+Therefore, the size of the longest subarray is 2.
+
+
+Example 2:
+
+Input: nums = [10,1,2,4,7,2], limit = 5
+Output: 4 
+Explanation: The subarray [2,4,7,2] is the longest since the maximum absolute diff is |2-7| = 5 <= 5.
+
+
+Example 3:
+
+Input: nums = [4,2,2,2,4,4,2,2], limit = 0
+Output: 3
+ 
+
+Constraints:
+
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+0 <= limit <= 10^9
+
+
+
+==================================Solution===================================
+
+Python
+
+from collections import deque
+
+class Solution:
+    def longestSubarray(self, nums: List[int], limit: int) -> int:
+        left = 0
+        max_deque = deque()
+        min_deque = deque()
+        longest = 0
+        
+        for right in range(len(nums)):
+            while max_deque and nums[max_deque[-1]] <= nums[right]:
+                max_deque.pop()
+            while min_deque and nums[min_deque[-1]] >= nums[right]:
+                min_deque.pop()
+            
+            max_deque.append(right)
+            min_deque.append(right)
+            
+            while nums[max_deque[0]] - nums[min_deque[0]] > limit:
+                left += 1
+                if max_deque[0] < left:
+                    max_deque.popleft()
+                if min_deque[0] < left:
+                    min_deque.popleft()
+            
+            longest = max(longest, right - left + 1)
+        
+        return longest
+
+
+
+
+class Solution:
+    # Key insights:
+    #
+    # - Longest subarray -> Usually a sliding window/two-pointer problem.
+    # - With the requirement where in a subarray, any pair of elements must have a
+    #   difference <= `limit`. This means, all it takes is one pair of elements
+    #   w/ difference > `limit` to not consider the current subarray w/ left_ptr
+    #   anymore and move on to one with (left_ptr + 1).
+    #   => Maintain max and min value for the sliding window. So long as the difference
+    #      between the max and min value of that window does not exceed `limit`, all
+    #      other differences will also not exceed `limit` as well.
+    #   - Whenever we move left_ptr up by one, we must recalculate subarray's max and
+    #     min as needed, if the passed-over elem is equal to subarray's max or min, respectively.
+    #  - If the requirement is not broken when inspecting new elements, add the element to the
+    #    window until subarray's max and min violate the requirement.
+    def longestSubarray(self, nums: List[int], limit: int) -> int:
+        left_ptr = 0
+        right_ptr = 1
+
+        subarray_min = nums[0]
+        subarray_max = nums[0]
+
+        res = 1
+
+        while right_ptr < len(nums):
+            curr_num = nums[right_ptr]
+
+            if curr_num > subarray_max:
+                subarray_max = curr_num
+            elif curr_num < subarray_min:
+                subarray_min = curr_num
+
+            if abs(subarray_max - subarray_min) > limit:
+                prev_left = nums[left_ptr]
+
+                left_ptr += 1
+
+                if prev_left == subarray_max:
+                    subarray_max = max(nums[left_ptr:(right_ptr+1)])
+                elif prev_left == subarray_min:
+                    subarray_min = min(nums[left_ptr:(right_ptr+1)])
+            else:
+                res = max(res, right_ptr - left_ptr + 1)
+
+            right_ptr += 1
+
+        return res
+
+
+
+
+TestCase 1:
+Input
+nums =
+[8,2,4,7]
+limit =
+4
+Output
+2
+Expected
+2
+
+TestCase 2:
+Input
+nums =
+[10,1,2,4,7,2]
+limit =
+5
+Output
+4
+Expected
+4
+
+TestCase 3:
+Input
+nums =
+[4,2,2,2,4,4,2,2]
+limit =
+0
+Output
+3
+Expected
+3

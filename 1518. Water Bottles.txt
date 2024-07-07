@@ -1,0 +1,99 @@
+There are numBottles water bottles that are initially full of water. You can exchange numExchange empty water bottles from the market with one full water bottle.
+
+The operation of drinking a full water bottle turns it into an empty bottle.
+
+Given the two integers numBottles and numExchange, return the maximum number of water bottles you can drink.
+
+ 
+
+Example 1:
+
+
+Input: numBottles = 9, numExchange = 3
+Output: 13
+Explanation: You can exchange 3 empty bottles to get 1 full water bottle.
+Number of water bottles you can drink: 9 + 3 + 1 = 13.
+
+
+Example 2:
+
+
+Input: numBottles = 15, numExchange = 4
+Output: 19
+Explanation: You can exchange 4 empty bottles to get 1 full water bottle. 
+Number of water bottles you can drink: 15 + 3 + 1 = 19.
+ 
+
+Constraints:
+
+1 <= numBottles <= 100
+2 <= numExchange <= 100
+
+
+
+=================================Solution=========================================
+
+Python
+
+class Solution:
+    def numWaterBottles(self, numBottles: int, numExchange: int) -> int:
+        return int(numBottles + (numBottles - 1) / (numExchange - 1))
+
+
+class Solution:
+    def numWaterBottles(self, numBottles: int, numExchange: int) -> int:
+        empty = 0
+        drank = 0
+        while numBottles:
+            drank += 1
+            empty += 1
+            numBottles -= 1
+            if empty == numExchange:
+                empty -= numExchange
+                numBottles += 1
+        return drank
+
+
+
+
+class Solution:
+    def numWaterBottles(self, num_bottles: int, num_exchange: int) -> int:
+        # Total amount of drinkable bottles is initially the same as the number of bottles.
+        total_drinkable_bottles = num_bottles
+      
+        # Continue the loop as long as we have enough bottles to exchange for a new one.
+        while num_bottles >= num_exchange:
+            # Calculate the remaining bottles after performing an exchange.
+            # The number of empty bottles to exchange is reduced by 'num_exchange',
+            # but we get one new bottle in return, hence the '-1'.
+            num_bottles = num_bottles - num_exchange + 1
+          
+            # Update the total number of drinkable bottles after the exchange.
+            total_drinkable_bottles += 1
+      
+        # Return the total number of drinkable bottles we can have.
+        return total_drinkable_bottles
+
+
+TestCase 1:
+Input
+numBottles =
+9
+numExchange =
+3
+Output
+13
+Expected
+13
+
+
+TestCase 2:
+Input
+numBottles =
+15
+numExchange =
+4
+Output
+19
+Expected
+19

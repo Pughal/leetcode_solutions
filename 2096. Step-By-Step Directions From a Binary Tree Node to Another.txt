@@ -1,0 +1,187 @@
+You are given the root of a binary tree with n nodes. Each node is uniquely assigned a value from 1 to n. 
+You are also given an integer startValue representing the value of the start node s, and a different integer destValue representing the value of the destination node t.
+
+Find the shortest path starting from node s and ending at node t. 
+Generate step-by-step directions of such path as a string consisting of only the uppercase letters 'L', 'R', and 'U'. Each letter indicates a specific direction:
+
+'L' means to go from a node to its left child node.
+'R' means to go from a node to its right child node.
+'U' means to go from a node to its parent node.
+Return the step-by-step directions of the shortest path from node s to node t.
+
+ 
+
+Example 1:
+
+
+Input: root = [5,1,2,3,null,6,4], startValue = 3, destValue = 6
+Output: "UURL"
+Explanation: The shortest path is: 3 → 1 → 5 → 2 → 6.
+
+
+Example 2:
+
+
+Input: root = [2,1], startValue = 2, destValue = 1
+Output: "L"
+Explanation: The shortest path is: 2 → 1.
+ 
+
+Constraints:
+
+The number of nodes in the tree is n.
+2 <= n <= 10^5
+1 <= Node.val <= n
+All the values in the tree are unique.
+1 <= startValue, destValue <= n
+startValue != destValue
+
+
+
+=============================Solution================================
+
+Python
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+  def getDirections(self, root: Optional[TreeNode], startValue: int, destValue: int) -> str:
+    # Buidl the string in reverse order to avoid creating new copy
+    def dfs(root: Optional[TreeNode], val: int, path: List[chr]) -> bool:
+      if root.val == val:
+        return True
+      if root.left and dfs(root.left, val, path):
+        path.append('L')
+      elif root.right and dfs(root.right, val, path):
+        path.append('R')
+      return len(path) > 0
+
+    pathToStart = []
+    pathToDest = []
+
+    dfs(root, startValue, pathToStart)
+    dfs(root, destValue, pathToDest)
+
+    while pathToStart and pathToDest and pathToStart[-1] == pathToDest[-1]:
+      pathToStart.pop()
+      pathToDest.pop()
+
+    return 'U' * len(pathToStart) + ''.join(reversed(pathToDest))
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def findPath(root, val, path):
+    if not root:
+        return False
+    if root.val == val:
+        return True
+    # Add 'L' or 'R' based on the direction of the recursion
+    if findPath(root.left, val, path):
+        path.append('L')
+        return True
+    if findPath(root.right, val, path):
+        path.append('R')
+        return True
+    return False
+
+class Solution:
+    def getDirections(self, root: Optional[TreeNode], startValue: int, destValue: int) -> str:
+        if not root:
+            return ""
+        
+        # Find paths from root to startValue and destValue
+        pathToStart = []
+        pathToDest = []
+        findPath(root, startValue, pathToStart)
+        findPath(root, destValue, pathToDest)
+        
+        # Reverse to make them root to node
+        pathToStart.reverse()
+        pathToDest.reverse()
+        
+        # Find LCA by finding the divergence point in paths
+        i = 0
+        while i < len(pathToStart) and i < len(pathToDest) and pathToStart[i] == pathToDest[i]:
+            i += 1
+        
+        # Steps to go up from start to LCA
+        lcaToStartSteps = 'U' * (len(pathToStart) - i)
+        # Steps from LCA to destination
+        lcaToDestSteps = ''.join(pathToDest[i:])
+        
+        return lcaToStartSteps + lcaToDestSteps
+
+# Example usage:
+# Construct the tree as per example 1
+# root = TreeNode(5)
+# root.left = TreeNode(1, TreeNode(3))
+# root.right = TreeNode(2, TreeNode(6), TreeNode(4))
+
+# startValue = 3
+# destValue = 6
+# print(getDirections(root, startValue, destValue))  # Output should be "UURL"
+
+
+
+class Solution:
+    def getDirections(self, root: Optional[TreeNode], startValue: int, destValue: int) -> str:
+        def find(val: int) -> bool:
+            q = deque([(root, '')])
+            while q:
+                node, path = q.popleft()
+                if node.val == val:
+                    return list(reversed(path))
+                if node.left:
+                    q.append((node.left, f'{path}L'))
+                if node.right:
+                    q.append((node.right, f'{path}R'))
+
+        start_path = find(startValue)
+        dest_path = find(destValue)
+        while len(start_path) and len(dest_path) and start_path[-1] == dest_path[-1]:
+            start_path.pop()
+            dest_path.pop()
+        return "".join("U" * len(start_path)) + "".join(reversed(dest_path))
+
+
+TestCase 1:
+Input
+root =
+[5,1,2,3,null,6,4]
+startValue =
+3
+destValue =
+6
+Output
+"UURL"
+Expected
+"UURL"
+
+TestCase 2:
+Input
+root =
+[2,1]
+startValue =
+2
+destValue =
+1
+Output
+"L"
+Expected
+"L"

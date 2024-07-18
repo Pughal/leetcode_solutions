@@ -1,0 +1,201 @@
+You are given the root of a binary tree and an integer distance. 
+A pair of two different leaf nodes of a binary tree is said to be good if the length of the shortest path between them is less than or equal to distance.
+
+Return the number of good leaf node pairs in the tree.
+
+ 
+
+Example 1:
+
+
+Input: root = [1,2,3,null,4], distance = 3
+Output: 1
+Explanation: The leaf nodes of the tree are 3 and 4 and the length of the shortest path between them is 3. This is the only good pair.
+
+
+Example 2:
+
+
+Input: root = [1,2,3,4,5,6,7], distance = 3
+Output: 2
+Explanation: The good pairs are [4,5] and [6,7] with shortest path = 2. The pair [4,6] is not good because the length of ther shortest path between them is 4.
+
+
+Example 3:
+
+Input: root = [7,1,4,6,null,5,3,null,null,null,null,null,2], distance = 3
+Output: 1
+Explanation: The only good pair is [2,5].
+ 
+
+Constraints:
+
+The number of nodes in the tree is in the range [1, 210].
+1 <= Node.val <= 100
+1 <= distance <= 10
+
+
+=================================Solution=======================================
+
+Python
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def countPairs(self, root: TreeNode, distance: int) -> int:
+        def postOrder(node: TreeNode) -> List[int]:
+            if not node:
+                return [0] * 12
+            if not node.left and not node.right:
+                current = [0] * 12
+                current[0] = 1
+                return current
+            
+            left = postOrder(node.left)
+            right = postOrder(node.right)
+            
+            current = [0] * 12
+            
+            for i in range(10):
+                current[i + 1] += left[i] + right[i]
+            
+            current[11] += left[11] + right[11]
+            
+            for d1 in range(distance + 1):
+                for d2 in range(distance + 1):
+                    if 2 + d1 + d2 <= distance:
+                        current[11] += left[d1] * right[d2]
+            
+            return current
+        
+        return postOrder(root)[11]
+
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def countPairs(self, root: TreeNode, distance: int) -> int:
+        self.res = 0
+
+        def solve(root):
+            if root is None:
+                return {}
+            if root.left is None and root.right is None:
+                # leaf node here
+                return {1: 1}
+            lhNodes = solve(root.left)            
+            rhNodes = solve(root.right)
+            
+            for leftNodeHeight in lhNodes:
+                for rightNodeHeight in rhNodes:
+                    if leftNodeHeight + rightNodeHeight <= distance:
+                        self.res += lhNodes[leftNodeHeight] * rhNodes[rightNodeHeight]
+
+            nhNodes = {}
+            for key in lhNodes:
+                if key <= distance:
+                    nhNodes[key + 1] = lhNodes[key]
+            for key in rhNodes:
+                if key <= distance:
+                    nhNodes[key + 1] = nhNodes.get(key + 1, 0) + rhNodes[key]                    
+
+
+
+            return nhNodes
+
+        solve(root)
+        return self.res
+
+
+class Solution(object):
+    def countPairs(self, root, distance):
+        """
+        :type root: TreeNode
+        :type distance: int
+        :rtype: int
+        """
+        self.count = 0
+        
+        distanceMap = self.helper(root, distance)
+        
+        return self.count
+    
+    def helper(self, root, distance):
+        
+        if root == None:
+            return {}
+        
+        if root.left == None and root.right == None:
+            return {1:1}
+        
+        l = self.helper(root.left, distance)
+        r = self.helper(root.right, distance)
+        
+        combinedDict = collections.defaultdict(int)
+        
+        for k in l:
+            combinedDict[k] += l[k]
+            
+        for k in r:
+            combinedDict[k] += r[k]
+        
+        for k in l:
+            for j in r:
+                if j + k <= distance:
+                    self.count += (l[k]*r[j])
+                
+        returnDict = collections.defaultdict(int)
+        
+        for k in combinedDict:
+            if k + 1 <= distance:
+                returnDict[k+1] += combinedDict[k]
+                
+        return returnDict
+
+
+        
+
+
+
+TestCase 1:
+Input
+root =
+[1,2,3,null,4]
+distance =
+3
+Output
+1
+Expected
+1
+
+TestCase 2:
+Input
+root =
+[1,2,3,4,5,6,7]
+distance =
+3
+Output
+2
+Expected
+2
+
+TestCase 3:
+Input
+root =
+[7,1,4,6,null,5,3,null,null,null,null,null,2]
+distance =
+3
+Output
+1
+Expected
+1

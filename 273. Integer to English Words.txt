@@ -1,0 +1,192 @@
+Hard
+
+
+Convert a non-negative integer num to its English words representation.
+
+ 
+
+Example 1:
+
+Input: num = 123
+Output: "One Hundred Twenty Three"
+
+
+Example 2:
+
+Input: num = 12345
+Output: "Twelve Thousand Three Hundred Forty Five"
+
+
+Example 3:
+
+Input: num = 1234567
+Output: "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"
+ 
+
+Constraints:
+
+0 <= num <= 2^31 - 1
+
+
+
+=======================================Solution==========================================
+
+Python
+
+class Solution:
+  def numberToWords(self, num: int) -> str:
+    if num == 0:
+      return "Zero"
+
+    belowTwenty = ["",        "One",       "Two",      "Three",
+                   "Four",    "Five",      "Six",      "Seven",
+                   "Eight",   "Nine",      "Ten",      "Eleven",
+                   "Twelve",  "Thirteen",  "Fourteen", "Fifteen",
+                   "Sixteen", "Seventeen", "Eighteen", "Nineteen"]
+    tens = ["", "Ten", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"]
+
+    def helper(num: int) -> str:
+      if num < 20:
+        s = belowTwenty[num]
+      elif num < 100:
+        s = tens[num // 10] + " " + belowTwenty[num % 10]
+      elif num < 1000:
+        s = helper(num // 100) + " Hundred " + helper(num % 100)
+      elif num < 1000000:
+        s = helper(num // 1000) + " Thousand " + helper(num % 1000)
+      elif num < 1000000000:
+        s = helper(num // 1000000) + " Million " + \
+            helper(num % 1000000)
+      else:
+        s = helper(num // 1000000000) + " Billion " + \
+            helper(num % 1000000000)
+
+      return s.strip()
+
+    return helper(num)
+
+
+
+
+class Solution:
+    def __init__(self):
+        self.ones = ["", " One", " Two", " Three", " Four", " Five", " Six", " Seven", " Eight", " Nine", " Ten", " Eleven", " Twelve", " Thirteen", " Fourteen", " Fifteen", " Sixteen", " Seventeen", " Eighteen", " Nineteen"]
+        self.tens = ["", "Ten", " Twenty", " Thirty", " Forty", " Fifty", " Sixty", " Seventy", " Eighty", " Ninety"]
+        self.thousands = ["", " Thousand", " Million", " Billion"]
+
+    def numberToWords(self, num: int) -> str:
+        if num == 0:
+            return "Zero"
+
+        result = ""
+        count = 0
+        while num:
+            res = num % 1000
+            num //= 1000
+            addon = ""
+            if res != 0:
+                result = self.helper(res) + self.thousands[count] + result
+            count += 1
+
+        return result.lstrip()
+
+    def helper(self, num):
+        if num < 20:
+            return self.ones[num]
+        elif num < 100:
+            return self.tens[num//10] + self.ones[num%10]
+        else:
+            return self.ones[num//100] + " Hundred" + self.helper(num%100)
+        
+
+class Solution:
+    def numberToWords(self, num: int) -> str:
+        def helper(num):
+
+            belowTen = {0:"", 1:"One", 2:"Two", 3:"Three", 4:"Four", 5:"Five", 6:"Six", 7:"Seven", 8:"Eight",9:"Nine"}
+            belowTwenty = {10:"Ten",11:"Eleven",12:"Twelve",13:"Thirteen",14:"Fourteen",15:"Fifteen",16:"Sixteen",17:"Seventeen",18:"Eighteen",19:"Nineteen"}
+            belowHundred = ["","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"]
+            result = ""
+            if num < 10:
+                result = belowTen[num]
+            elif num < 20:
+                result = belowTwenty[num]
+            elif num < 100:
+                result = belowHundred[num // 10] + " " + helper(num % 10)
+            elif num < 1000:
+                result = helper(num // 100) + " Hundred " + helper(num % 100)
+            elif num < 1000000:
+                result = helper(num // 1000) + " Thousand " + helper(num % 1000)
+            elif num < 1000000000:
+                result = helper(num // 1000000) + " Million " + helper(num % 1000000)
+            else:
+                result = helper(num // 1000000000) + " Billion " + helper(num % 1000000000)
+            
+            return result.strip()
+        
+        if num == 0:
+            return "Zero"
+        res = helper(num)
+        return res
+
+
+
+class Solution:
+    # Dictionary to store words for numbers
+    number_to_words_map = {
+        1000000000: "Billion", 1000000: "Million", 1000: "Thousand",
+        100: "Hundred", 90: "Ninety", 80: "Eighty", 70: "Seventy",
+        60: "Sixty", 50: "Fifty", 40: "Forty", 30: "Thirty",
+        20: "Twenty", 19: "Nineteen", 18: "Eighteen", 17: "Seventeen",
+        16: "Sixteen", 15: "Fifteen", 14: "Fourteen", 13: "Thirteen",
+        12: "Twelve", 11: "Eleven", 10: "Ten", 9: "Nine", 8: "Eight",
+        7: "Seven", 6: "Six", 5: "Five", 4: "Four", 3: "Three",
+        2: "Two", 1: "One"
+    }
+
+    def numberToWords(self, num: int) -> str:
+        if num == 0:
+            return "Zero"
+
+        for value, word in self.number_to_words_map.items():
+            # Check if the number is greater than or equal to the current unit
+            if num >= value:
+                # Convert the quotient to words if the current unit is 100 or greater
+                prefix = (self.numberToWords(num // value) + " ") if num >= 100 else ""
+
+                # Get the word for the current unit
+                unit = word
+
+                # Convert the remainder to words if it's not zero
+                suffix = "" if num % value == 0 else " " + self.numberToWords(num % value)
+
+                return prefix + unit + suffix
+
+        return ""
+
+TestCase 1:
+Input
+num =
+123
+Output
+"One Hundred Twenty Three"
+Expected
+"One Hundred Twenty Three"
+
+TestCase 2:
+Input
+num =
+12345
+Output
+"Twelve Thousand Three Hundred Forty Five"
+Expected
+"Twelve Thousand Three Hundred Forty Five"
+
+TestCase 3:
+Input
+num =
+1234567
+Output
+"One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"
+Expected
+"One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"

@@ -1,0 +1,150 @@
+A 3 x 3 magic square is a 3 x 3 grid filled with distinct numbers from 1 to 9 such that each row, column, and both diagonals all have the same sum.
+
+Given a row x col grid of integers, how many 3 x 3 contiguous magic square subgrids are there?
+
+Note: while a magic square can only contain numbers from 1 to 9, grid may contain numbers up to 15.
+
+ 
+
+Example 1:
+
+
+Input: grid = [[4,3,8,4],[9,5,1,9],[2,7,6,2]]
+Output: 1
+Explanation: 
+The following subgrid is a 3 x 3 magic square:
+
+while this one is not:
+
+In total, there is only one magic square inside the given grid.
+
+
+Example 2:
+
+Input: grid = [[8]]
+Output: 0
+ 
+
+Constraints:
+
+row == grid.length
+col == grid[i].length
+1 <= row, col <= 10
+0 <= grid[i][j] <= 15
+
+
+
+
+==========================================Solution==========================================
+
+Python
+
+class Solution:
+  def numMagicSquaresInside(self, grid: List[List[int]]) -> int:
+    def isMagic(i: int, j: int) -> int:
+      s = "".join(str(grid[i + num // 3][j + num % 3])
+                  for num in [0, 1, 2, 5, 8, 7, 6, 3])
+      return s in "43816729" * 2 or s in "43816729"[::-1] * 2
+
+    ans = 0
+
+    for i in range(len(grid) - 2):
+      for j in range(len(grid[0]) - 2):
+        if grid[i][j] % 2 == 0 and grid[i + 1][j + 1] == 5:
+          ans += isMagic(i, j)
+
+    return ans
+
+
+class Solution:
+    def numMagicSquaresInside(self, grid: List[List[int]]) -> int:
+        def isMagicSquare(r, c):
+            # Check if all numbers are distinct and in range [1, 9]
+            nums = set()
+            for i in range(3):
+                for j in range(3):
+                    num = grid[r + i][c + j]
+                    if num < 1 or num > 9 or num in nums:
+                        return False
+                    nums.add(num)
+            
+            # Calculate the expected magic sum (sum of first row)
+            magic_sum = grid[r][c] + grid[r][c+1] + grid[r][c+2]
+            
+            # Check rows, columns, and diagonals
+            for i in range(3):
+                if (grid[r + i][c] + grid[r + i][c + 1] + grid[r + i][c + 2] != magic_sum or
+                    grid[r][c + i] + grid[r + 1][c + i] + grid[r + 2][c + i] != magic_sum):
+                    return False
+            
+            if (grid[r][c] + grid[r + 1][c + 1] + grid[r + 2][c + 2] != magic_sum or
+                grid[r][c + 2] + grid[r + 1][c + 1] + grid[r + 2][c] != magic_sum):
+                return False
+            
+            return True
+        
+        row, col = len(grid), len(grid[0])
+        count = 0
+        
+        # Iterate through all possible top-left corners of 3x3 subgrids
+        for r in range(row - 2):
+            for c in range(col - 2):
+                if isMagicSquare(r, c):
+                    count += 1
+        
+        return count
+
+
+class Solution:
+    def numMagicSquaresInside(self, grid: List[List[int]]) -> int:
+        ROWS, COLS = len(grid), len(grid[0])
+        ans = 0
+
+        for row in range(ROWS):
+            for col in range(COLS):
+                if row + 3 <= ROWS and col + 3 <= COLS:
+                    values = 1
+                    row_sum = [0] * 3
+                    col_sum = [0] * 3
+                    diag_sum1, diag_sum2 = 0 , 0
+
+                    for i in range(row, row + 3):
+                        for j in range(col, col + 3):
+                            if i - row == 0:
+                                diag_sum1 += grid[i][col]
+                                diag_sum2 += grid[i][col + 2]
+                            elif i - row == 2:
+                                diag_sum1 += grid[i][col + 2]
+                                diag_sum2 += grid[i][col]
+                            else:
+                                diag_sum1 += grid[i][col + 1]
+                                diag_sum2 += grid[i][col + 1]
+
+                            values |= 1 << grid[i][j]
+                            row_sum[i - row] += grid[i][j]
+                            col_sum[j - col] += grid[i][j]
+                    
+                    if (values == (1 << 10) - 1) and (len(set(row_sum)) == 1 == len(set(col_sum))) and (diag_sum1 == diag_sum2):
+                        ans += 1
+        
+        return ans
+
+
+
+TestCase 1:
+Input
+grid =
+[[4,3,8,4],[9,5,1,9],[2,7,6,2]]
+Output
+1
+Expected
+1
+
+TestCase 2:
+Input
+grid =
+[[8]]
+Output
+0
+Expected
+0

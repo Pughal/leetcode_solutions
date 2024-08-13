@@ -1,0 +1,124 @@
+Given a collection of candidate numbers (candidates) and a target number (target), find all unique combinations in candidates where the candidate numbers sum to target.
+
+Each number in candidates may only be used once in the combination.
+
+Note: The solution set must not contain duplicate combinations.
+
+ 
+
+Example 1:
+
+Input: candidates = [10,1,2,7,6,1,5], target = 8
+Output: 
+[
+[1,1,6],
+[1,2,5],
+[1,7],
+[2,6]
+]
+
+
+Example 2:
+
+Input: candidates = [2,5,2,1,2], target = 5
+Output: 
+[
+[1,2,2],
+[5]
+]
+ 
+
+Constraints:
+
+1 <= candidates.length <= 100
+1 <= candidates[i] <= 50
+1 <= target <= 30
+
+
+======================================Solution==========================================
+
+Python
+
+class Solution:
+  def combinationSum2(self, candidates: list[int], target: int) -> list[list[int]]:
+    ans = []
+
+    def dfs(s: int, target: int, path: list[int]) -> None:
+      if target < 0:
+        return
+      if target == 0:
+        ans.append(path.copy())
+        return
+
+      for i in range(s, len(candidates)):
+        if i > s and candidates[i] == candidates[i - 1]:
+          continue
+        path.append(candidates[i])
+        dfs(i + 1, target - candidates[i], path)
+        path.pop()
+
+    candidates.sort()
+    dfs(0, target, [])
+    return ans
+
+
+class Solution:
+    def combinationSum2(self, candidates: List[int], target: int) -> List[List[int]]:
+        def backtrack(start: int, target: int, path: List[int]):
+            # Base case: if target is 0, we've found a valid combination
+            if target == 0:
+                res.append(path[:])  # Add a copy of the current path to results
+                return
+            
+            for i in range(start, len(candidates)):
+                # Skip duplicates to avoid duplicate combinations
+                if i > start and candidates[i] == candidates[i-1]:
+                    continue
+                
+                # If current candidate is greater than target, no need to continue
+                # (since candidates are sorted)
+                if candidates[i] > target:
+                    break
+                
+                # Include current candidate in the path
+                path.append(candidates[i])
+                
+                # Recursively backtrack with updated target and start index
+                backtrack(i + 1, target - candidates[i], path)
+                
+                # Backtrack: remove the current candidate to try next option
+                path.pop()
+
+        # Sort candidates to handle duplicates and enable early termination
+        candidates.sort()
+        
+        # Initialize result list
+        res = []
+        
+        # Start backtracking from index 0, with full target and empty path
+        backtrack(0, target, [])
+        
+        return res
+
+
+TestCase 1:
+Input
+candidates =
+[10,1,2,7,6,1,5]
+target =
+8
+Output
+[[1,1,6],[1,2,5],[1,7],[2,6]]
+Expected
+[[1,1,6],[1,2,5],[1,7],[2,6]]
+
+TestCase 2:
+Input
+candidates =
+[2,5,2,1,2]
+target =
+5
+Output
+[[1,2,2],[5]]
+Expected
+[[1,2,2],[5]]

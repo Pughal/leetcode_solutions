@@ -1,0 +1,113 @@
+Alice and Bob continue their games with piles of stones.  There are a number of piles arranged in a row, and each pile has a positive integer number of stones piles[i].  
+The objective of the game is to end with the most stones. 
+
+Alice and Bob take turns, with Alice starting first.  Initially, M = 1.
+
+On each player's turn, that player can take all the stones in the first X remaining piles, where 1 <= X <= 2M.  Then, we set M = max(M, X).
+
+The game continues until all the stones have been taken.
+
+Assuming Alice and Bob play optimally, return the maximum number of stones Alice can get.
+
+ 
+
+Example 1:
+
+Input: piles = [2,7,9,4,4]
+Output: 10
+Explanation:  If Alice takes one pile at the beginning, Bob takes two piles, then Alice takes 2 piles again. Alice can get 2 + 4 + 4 = 10 piles in total. 
+If Alice takes two piles at the beginning, then Bob can take all three piles left. In this case, Alice get 2 + 7 = 9 piles in total. So we return 10 since it's larger. 
+
+
+Example 2:
+
+Input: piles = [1,2,3,4,5,100]
+Output: 104
+ 
+
+Constraints:
+
+1 <= piles.length <= 100
+1 <= piles[i] <= 10^4
+
+
+
+================================Solution=====================================
+
+Python
+
+class Solution:
+    def stoneGameII(self, piles):
+        # accumulated sum table of the rest of all stores reversely for quick check
+        a = [*accumulate(piles[::-1])][::-1]
+		
+        # dp cache 
+        @lru_cache(None)
+        def game(i, m): 
+		    # i: current index, m: current maximal move
+            # if player's move can arrive goal, get all rest stones
+            if i + 2 * m >= len(piles): return a[i]
+            
+            # otherwise, 
+            # the rest of all stones must subtract rival's minimum  
+            # _minScore: rival's minimum         
+            _minScore = 2**31 - 1  
+
+            # find which move can get maximum
+            # x: how many moves
+            for x in range(1, 2 * m + 1):
+                # get rival's score
+                score = game(i + x, x) if x > m else game(i + x, m)
+                # update rival's new minimum 
+                if score < _minScore: _minScore = score
+
+            # the rest of all stores of current position
+            # subtract rival's minimum to get best result
+            return a[i] - _minScore
+            
+        return game(0, 1)
+
+
+class Solution:
+    def stoneGameII(self, piles):
+        length = len(piles)
+        dp = [[0 for _ in range(length + 1)] for _ in range(length + 1)]
+
+        # Store suffix sum for all possible suffix
+        suffix_sum = [0 for _ in range(length + 1)]
+        for i in range(length - 1, -1, -1):
+            suffix_sum[i] = suffix_sum[i + 1] + piles[i]
+
+        # Initialize the dp array.
+        for i in range(length + 1):
+            dp[i][length] = suffix_sum[i]
+
+        # Start from the last index to store the future state first.
+        for index in range(length - 1, -1, -1):
+            for max_till_now in range(length - 1, 0, -1):
+                for X in range(1, min(2 * max_till_now, length - index) + 1):
+                    dp[index][max_till_now] = max(
+                        dp[index][max_till_now],
+                        suffix_sum[index] - dp[index + X][max(max_till_now, X)],
+                    )
+        return dp[0][1]
+
+
+
+TestCase 1:
+Input
+piles =
+[2,7,9,4,4]
+Output
+10
+Expected
+10
+
+TestCase 2:
+Input
+piles =
+[1,2,3,4,5,100]
+Output
+104
+Expected
+104

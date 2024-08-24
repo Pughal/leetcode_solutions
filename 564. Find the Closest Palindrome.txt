@@ -1,0 +1,138 @@
+Hard
+
+
+Given a string n representing an integer, return the closest integer (not including itself), which is a palindrome. If there is a tie, return the smaller one.
+
+The closest is defined as the absolute difference minimized between two integers.
+
+ 
+
+Example 1:
+
+Input: n = "123"
+Output: "121"
+
+
+Example 2:
+
+Input: n = "1"
+Output: "0"
+Explanation: 0 and 2 are the closest palindromes but we return the smallest which is 0.
+ 
+
+Constraints:
+
+1 <= n.length <= 18
+n consists of only digits.
+n does not have leading zeros.
+n is representing an integer in the range [1, 10^18 - 1].
+
+
+
+=====================================Solution========================================
+
+Python
+
+class Solution:
+  def nearestPalindromic(self, n: str) -> str:
+    prevPalindrome, nextPalindrome = self._getPalindromes(n)
+    return (str(prevPalindrome)
+            if abs(prevPalindrome - int(n)) <= abs(nextPalindrome - int(n))
+            else str(nextPalindrome))
+
+  def _getPalindromes(self, s: str) -> tuple[str, str]:
+    """Returns the two closest palindromes to the given number."""
+    num = int(s)
+    sz = len(s)
+    palindromes = []
+    half = s[0:(sz + 1) // 2]
+    reversedHalf = half[:sz // 2][::-1]
+    candidate = int(half + reversedHalf)
+
+    if candidate < num:
+      palindromes.append(candidate)
+    else:
+      prevHalf = str(int(half) - 1)
+      reversedPrevHalf = prevHalf[:sz // 2][::-1]
+      if sz % 2 == 0 and int(prevHalf) == 0:
+        palindromes.append(9)
+      elif sz % 2 == 0 and prevHalf == '9':
+        palindromes.append(int(prevHalf + '9' + reversedPrevHalf))
+      else:
+        palindromes.append(int(prevHalf + reversedPrevHalf))
+
+    if candidate > num:
+      palindromes.append(candidate)
+    else:
+      nextHalf = str(int(half) + 1)
+      reversedNextHalf = nextHalf[:sz // 2][::-1]
+      palindromes.append(int(nextHalf + reversedNextHalf))
+
+    return palindromes
+
+
+
+class Solution:
+    def nearestPalindromic(self, n: str) -> str:
+        if len(n) == 1:
+            return str(int(n) - 1)
+        div, mod = divmod(len(n), 2)
+        prefix = n[:div+1] if mod else n[:div]
+        prefix_plus = str(int(prefix) + 1)
+        prefix_minus = str(int(prefix) - 1)
+        cands = [str(10 ** len(n) + 1)]
+        for p in [prefix_plus, prefix, prefix_minus]:
+            if mod:
+                cands.append(p + p[:-1][::-1])
+            else:
+                cands.append(p + p[::-1])
+        # 123 -> 1001, 99
+        cands.append(str(10 ** (len(n) - 1) - 1))
+        min_diff = float("inf")
+        ans = None
+        int_n = int(n)
+        for cand in cands:
+            diff = abs(int(cand) - int_n)
+            if diff and diff <= min_diff:
+                ans = cand
+                min_diff = diff
+        return ans
+                     
+        
+
+class Solution:
+    """
+        what are the possible candidates for answer? 
+        Main case: 
+        1. reflection 12345: 12321 (+1)
+        edge cases:
+        2. 4 digits: 999 1001 9999 10001 (+4)
+        3. 1283? currently it will map to 1221 which is wrong so need to modify middle digit before building reflection (+2)
+    """
+    def nearestPalindromic(self, n: str) -> str:
+        if(len(n)==1): return str(int(n)-1)
+        def build(x): return x[:(len(x)+1)//2] + x[:len(x)//2][::-1]
+        cands = [build(n),str(10**(len(n)-1)-1),str(10**(len(n)-1)+1),str(10**(len(n))-1),str(10**(len(n))+1),build(str(int(n)-(10**((len(n))//2 )))),build(str(int(n)+(10**((len(n))//2 ))))]
+        vals = [(abs(int(n)-int(x)),int(x)) for x in cands if x!=n]
+        return str(min(vals)[1])
+
+
+
+TestCase 1:
+Input
+n =
+"123"
+Output
+"121"
+Expected
+"121"
+
+TestCase 2:
+Input
+n =
+"1"
+Output
+"0"
+Expected
+"0"
+

@@ -1,0 +1,224 @@
+A robot on an infinite XY-plane starts at point (0, 0) facing north. The robot can receive a sequence of these three possible types of commands:
+
+-2: Turn left 90 degrees.
+-1: Turn right 90 degrees.
+1 <= k <= 9: Move forward k units, one unit at a time.
+Some of the grid squares are obstacles. The ith obstacle is at grid point obstacles[i] = (xi, yi). 
+If the robot runs into an obstacle, then it will instead stay in its current location and move on to the next command.
+
+Return the maximum Euclidean distance that the robot ever gets from the origin squared (i.e. if the distance is 5, return 25).
+
+Note:
+
+North means +Y direction.
+East means +X direction.
+South means -Y direction.
+West means -X direction.
+There can be obstacle in [0,0].
+ 
+
+Example 1:
+
+Input: commands = [4,-1,3], obstacles = []
+Output: 25
+Explanation: The robot starts at (0, 0):
+1. Move north 4 units to (0, 4).
+2. Turn right.
+3. Move east 3 units to (3, 4).
+The furthest point the robot ever gets from the origin is (3, 4), which squared is 32 + 42 = 25 units away.
+
+
+Example 2:
+
+Input: commands = [4,-1,4,-2,4], obstacles = [[2,4]]
+Output: 65
+Explanation: The robot starts at (0, 0):
+1. Move north 4 units to (0, 4).
+2. Turn right.
+3. Move east 1 unit and get blocked by the obstacle at (2, 4), robot is at (1, 4).
+4. Turn left.
+5. Move north 4 units to (1, 8).
+The furthest point the robot ever gets from the origin is (1, 8), which squared is 12 + 82 = 65 units away.
+
+
+Example 3:
+
+Input: commands = [6,-1,-1,6], obstacles = []
+Output: 36
+Explanation: The robot starts at (0, 0):
+1. Move north 6 units to (0, 6).
+2. Turn right.
+3. Turn right.
+4. Move south 6 units to (0, 0).
+The furthest point the robot ever gets from the origin is (0, 6), which squared is 62 = 36 units away.
+ 
+
+Constraints:
+
+1 <= commands.length <= 10^4
+commands[i] is either -2, -1, or an integer in the range [1, 9].
+0 <= obstacles.length <= 10^4
+-3 * 10^4 <= xi, yi <= 3 * 10^4
+The answer is guaranteed to be less than 2^31.
+
+
+
+==================================Solution======================================
+
+Python
+
+class Solution:
+    def robotSim(self, commands: List[int], obstacles: List[List[int]]) -> int:
+        # Convert the list of obstacles to a set for O(1) lookup time
+        obstacle_set = set(map(tuple, obstacles))
+        
+        # Directions: North, East, South, West (in terms of x, y changes)
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        
+        # Initial position and direction (facing North)
+        x, y = 0, 0
+        direction_index = 0
+        
+        max_distance_squared = 0
+        
+        for command in commands:
+            if command == -2:
+                # Turn left (counterclockwise)
+                direction_index = (direction_index - 1) % 4
+            elif command == -1:
+                # Turn right (clockwise)
+                direction_index = (direction_index + 1) % 4
+            else:
+                # Move forward 'command' units
+                for _ in range(command):
+                    # Calculate next position
+                    next_x = x + directions[direction_index][0]
+                    next_y = y + directions[direction_index][1]
+                    
+                    # Check if the next position is an obstacle
+                    if (next_x, next_y) in obstacle_set:
+                        # If there's an obstacle, stop moving in this direction
+                        break
+                    
+                    # Update position
+                    x, y = next_x, next_y
+                    
+                    # Calculate the square of the distance from the origin
+                    max_distance_squared = max(max_distance_squared, x * x + y * y)
+        
+        return max_distance_squared
+
+
+
+class Solution:
+    def robotSim(self, commands: List[int], obstacles: List[List[int]]) -> int:
+        obs = set(map(tuple,obstacles))
+        x,y, dx,dy, ans = 0,0, 0,1, 0
+
+        for c in commands:
+
+            if c < 0 :
+                dx, dy = (dy, -dx) if c+2 else (-dy, dx)  
+    
+            else:
+                for _ in range(c):
+
+                    xx, yy = x+dx, y+dy
+                    
+                    if (xx, yy) in obs: break
+                    x, y = xx, yy
+
+            ans = max(ans, x*x + y*y)
+
+        return ans
+        
+
+
+
+class Solution:
+    def robotSim(self, commands: List[int], obstacles: List[List[int]]) -> int:
+        # (2, 3) facing North; need all that have y-value > 3
+        # (2, 3) facing East; need all of the obstacles that have a x-value > 2
+        # (2, 3) facing South; need all that have a y-value < 3
+        # (2, 3) facing West; need all that have x-value < 2
+
+        # obstacleMap[x][y] = True ==> obstable at (x, y)
+        
+        obstacle_map = {}
+        # Create obstacles map
+        for obstacle in obstacles:
+            x, y = obstacle
+            if x not in obstacle_map:
+                obstacle_map[x] = {}
+            obstacle_map[x][y] = True
+
+        max_euclidean_dist = 0
+        robot_x, robot_y = 0, 0
+        direction = 0  # 0 = north, 1 = east, 2 = south, 3 = west
+        movement_map = {0: (0, 1), 1: (1, 0), 2: (0, -1), 3: (-1, 0)}
+
+        # For each command, turn in the appropriate direction, or update the new point
+        # based on potential obstacles in the path
+        for command in commands:
+            if command == -2:
+                direction = (direction + 3) % 4
+            elif command == -1:
+                direction = (direction + 1) % 4
+            else:
+                # Iterate over k units adding in the direction of movement to check for obstacles
+                x_movement, y_movement = movement_map[direction]
+                max_dist = command
+                for dist in range(1, command + 1):
+                    check_x = robot_x + (x_movement * dist)
+                    check_y = robot_y + (y_movement * dist)
+
+                    if check_x in obstacle_map and check_y in obstacle_map[check_x]:
+                        # Current dist hits an obstacle, so we set max dist to previous iteration
+                        max_dist = dist - 1
+                        break
+                
+                robot_x += (x_movement * max_dist)
+                robot_y += (y_movement * max_dist)
+
+            # Euclidean distance is sum of squares of robot's final x and y position
+            euclidean_dist = (robot_x ** 2) + (robot_y ** 2)
+            max_euclidean_dist = max(max_euclidean_dist, euclidean_dist)
+
+        
+
+        return max_euclidean_dist
+
+
+
+TestCase 1:
+Input
+commands =
+[4,-1,3]
+obstacles =
+[]
+Output
+25
+Expected
+25
+
+TestCase 2:
+Input
+commands =
+[4,-1,4,-2,4]
+obstacles =
+[[2,4]]
+Output
+65
+Expected
+65
+
+TestCase 3:
+Input
+commands =
+[6,-1,-1,6]
+obstacles =
+[]
+Output
+36
+Expected
+36

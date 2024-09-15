@@ -1,0 +1,112 @@
+Given the string s, return the size of the longest substring containing each vowel an even number of times. That is, 'a', 'e', 'i', 'o', and 'u' must appear an even number of times.
+
+ 
+
+Example 1:
+
+Input: s = "eleetminicoworoep"
+Output: 13
+Explanation: The longest substring is "leetminicowor" which contains two each of the vowels: e, i and o and zero of the vowels: a and u.
+
+
+Example 2:
+
+Input: s = "leetcodeisgreat"
+Output: 5
+Explanation: The longest substring is "leetc" which contains two e's.
+
+
+Example 3:
+
+Input: s = "bcbcbc"
+Output: 6
+Explanation: In this case, the given string "bcbcbc" is the longest because all vowels: a, e, i, o and u appear zero times.
+ 
+
+Constraints:
+
+1 <= s.length <= 5 x 10^5
+s contains only lowercase English letters.
+
+
+
+========================================Solution===========================================
+
+Python
+
+class Solution:
+  def findTheLongestSubstring(self, s: str) -> int:
+    kVowels = 'aeiou'
+    ans = 0
+    prefix = 0 
+    prefixToIndex = {0: -1}
+
+    for i, c in enumerate(s):
+      index = kVowels.find(c)
+      if index != -1:
+        prefix ^= 1 << index
+      prefixToIndex.setdefault(prefix, i)
+      ans = max(ans, i - prefixToIndex[prefix])
+
+    return ans 
+
+
+
+class Solution:
+    def findTheLongestSubstring(self, s: str) -> int:
+        # Vowels and their corresponding bit positions
+        vowels = {'a': 0, 'e': 1, 'i': 2, 'o': 3, 'u': 4}
+        
+        # Initialize bitmask and the dictionary to store the first occurrence of each bitmask
+        bitmask = 0
+        first_occurrence = {0: -1}
+        max_length = 0
+        
+        for i, char in enumerate(s):
+            # Update bitmask if the character is a vowel
+            if char in vowels:
+                bitmask ^= (1 << vowels[char])
+            
+            # If the bitmask is not in the dictionary, add it with the current index
+            if bitmask not in first_occurrence:
+                first_occurrence[bitmask] = i
+            
+            # Calculate the length of the substring with even vowels
+            length = i - first_occurrence[bitmask]
+            max_length = max(max_length, length)
+        
+        return max_length
+
+# Example usage:
+solution = Solution()
+print(solution.findTheLongestSubstring("eleetminicoworoep"))  # Output: 13
+print(solution.findTheLongestSubstring("leetcodeisgreat"))  # Output: 5
+print(solution.findTheLongestSubstring("bcbcbc"))  # Output: 6
+
+
+TestCase 1:
+Input
+s =
+"eleetminicoworoep"
+Output
+13
+Expected
+13
+
+TestCase 2:
+Input
+s =
+"leetcodeisgreat"
+Output
+5
+Expected
+5
+
+TestCase 3:
+Input
+s =
+"bcbcbc"
+Output
+6
+Expected
+6

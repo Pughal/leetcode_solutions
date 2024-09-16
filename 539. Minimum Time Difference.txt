@@ -1,0 +1,134 @@
+Given a list of 24-hour clock time points in "HH:MM" format, return the minimum minutes difference between any two time-points in the list.
+ 
+
+Example 1:
+
+Input: timePoints = ["23:59","00:00"]
+Output: 1
+
+
+Example 2:
+
+Input: timePoints = ["00:00","23:59","00:00"]
+Output: 0
+ 
+
+Constraints:
+
+2 <= timePoints.length <= 2 * 10^4
+timePoints[i] is in the format "HH:MM".
+
+
+
+=========================================Solution=============================================
+
+Python
+
+class Solution:
+  def findMinDifference(self, timePoints: list[str]) -> int:
+    ans = 24 * 60
+    nums = sorted([int(timePoint[:2]) * 60 + int(timePoint[3:]) for timePoint in timePoints])
+
+    for a, b in zip(nums, nums[1:]):
+      ans = min(ans, b - a)
+
+    return min(ans, 24 * 60 - nums[-1] + nums[0])
+
+
+class Solution:
+    def findMinDifference(self, timePoints: List[str]) -> int:
+        
+        #If there are 2 matching timePoints then we can return 0
+        if len(set(timePoints))< len(timePoints):
+            return 0
+        
+        #Once we sort the least timestamp between any 2 points is only with adjacent values
+        timePoints = sorted(timePoints)
+
+        #Set to Maximum value difference can have
+        minimum = 1440
+        for i in range(len(timePoints)):
+            pl = timePoints[i].split(":")
+            #Convert timePoint to Nth minute of the day
+            timePoints[i] = int(pl[0])*60 + int(pl[1])
+
+        #Calculate the minimum difference between 2 timePoints
+        for i in range(len(timePoints)-1):
+            if timePoints[i+1] - timePoints[i] < minimum:
+                minimum = timePoints[i+1] - timePoints[i]
+        
+        #Final edge case to compare between latest minute to the earliest minute on the next day
+        if 1440 - timePoints[-1] + timePoints[0] < minimum:
+            minimum = 1440 - timePoints[-1] + timePoints[0]
+        
+        return minimum
+        
+
+
+class Solution:
+
+    # brute force logic
+
+    # transform every item in the list into an integer
+        # integer --> # of minutes from 00:00
+        # ex: 23:59 --> 23 hours * 60 minutes + 59 minutes = 1439 minutes
+
+    # find minimum difference between any 2 ints in the list
+    # sort the list from smallest to biggest
+    # iterate through the list (1, len(points) - 1)
+        # calcuate current difference between point[i] and point[i - 1]
+        # if it's smaller than the minimum difference, replace min difference with current
+
+    # return minimum difference
+
+    # after sorting --> another possible minimum difference is the difference between the max and min
+    # for example, if the max is 23:59, and the min is 00:00, min - max = 1
+
+
+    def findMinDifference(self, timePoints: List[str]) -> int:
+
+        time_minutes = []
+
+        for i in range(0, len(timePoints)):
+            hour_mins = int(timePoints[i].split(":")[0]) * 60
+            mins = int(timePoints[i].split(":")[1])
+            time_minutes.append(hour_mins + mins)
+
+        # now, we have time_minutes w/ int minutes for each time
+
+        min_diff = 100000000000
+
+        time_minutes.sort()
+        for x in range(1, len(time_minutes)):
+            cur_diff = time_minutes[x] - time_minutes[x - 1]
+            if cur_diff < min_diff:
+                min_diff = cur_diff
+        
+        # edge case
+        cur_diff = time_minutes[0] + (24 * 60) - time_minutes[len(time_minutes) - 1]
+
+        if cur_diff < min_diff:
+            return cur_diff
+
+        return min_diff
+        
+
+
+TestCase 1:
+Input
+timePoints =
+["23:59","00:00"]
+Output
+1
+Expected
+1
+
+
+TestCase 2:
+Input
+timePoints =
+["00:00","23:59","00:00"]
+Output
+0
+Expected
+0

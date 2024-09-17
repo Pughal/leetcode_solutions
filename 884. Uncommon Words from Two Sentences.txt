@@ -1,0 +1,110 @@
+A sentence is a string of single-space separated words where each word consists only of lowercase letters.
+
+A word is uncommon if it appears exactly once in one of the sentences, and does not appear in the other sentence.
+
+Given two sentences s1 and s2, return a list of all the uncommon words. You may return the answer in any order.
+
+ 
+
+Example 1:
+
+Input: s1 = "this apple is sweet", s2 = "this apple is sour"
+Output: ["sweet","sour"]
+
+Explanation:
+The word "sweet" appears only in s1, while the word "sour" appears only in s2.
+
+Example 2:
+
+Input: s1 = "apple apple", s2 = "banana"
+Output: ["banana"]
+
+ 
+
+Constraints:
+
+1 <= s1.length, s2.length <= 200
+s1 and s2 consist of lowercase English letters and spaces.
+s1 and s2 do not have leading or trailing spaces.
+All the words in s1 and s2 are separated by a single space.
+
+
+
+=====================================Solution=======================================
+
+Python
+
+class Solution:
+  def uncommonFromSentences(self, A: str, B: str) -> list[str]:
+    count = collections.Counter((A + ' ' + B).split())
+    return [word for word, freq in count.items() if freq == 1]
+
+
+
+class Solution:
+    def uncommonFromSentences(self, s1: str, s2: str) -> List[str]:
+        out=[]
+        s1=s1.split()
+        s2=s2.split()
+        for i in s1:
+            if (i not in s2) and (s1.count(i)==1) :
+                out.append(i)
+        for j in s2:
+            if (j not in s1) and (s2.count(j)==1):
+                out.append(j)
+        return out
+    
+
+class Solution:
+    def uncommonFromSentences(self, s1: str, s2: str) -> List[str]:
+        unique = set()
+        dups = set()
+
+        for word in s1.split() + s2.split():
+            if word not in unique and word not in dups:
+                unique.add(word)
+            elif word in unique:
+                unique.remove(word)
+                dups.add(word)
+
+        return list(unique)
+
+
+
+class Solution(object):
+    def uncommonFromSentences(self, A, B):
+        count = {}
+        for word in A.split():
+            count[word] = count.get(word, 0) + 1
+        for word in B.split():
+            count[word] = count.get(word, 0) + 1
+
+        #Alternatively:
+        #count = collections.Counter(A.split())
+        #count += collections.Counter(B.split())
+
+        return [word for word in count if count[word] == 1]
+
+
+TestCase 1:
+Input
+s1 =
+"this apple is sweet"
+s2 =
+"this apple is sour"
+Output
+["sweet","sour"]
+Expected
+["sweet","sour"]
+
+
+TestCase 2:
+Input
+s1 =
+"apple apple"
+s2 =
+"banana"
+Output
+["banana"]
+Expected
+["banana"]

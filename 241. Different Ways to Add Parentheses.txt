@@ -1,0 +1,132 @@
+Given a string expression of numbers and operators, return all possible results from computing all the different possible ways to group numbers and operators. 
+You may return the answer in any order.
+
+The test cases are generated such that the output values fit in a 32-bit integer and the number of different results does not exceed 10^4.
+
+ 
+
+Example 1:
+
+Input: expression = "2-1-1"
+Output: [0,2]
+Explanation:
+((2-1)-1) = 0 
+(2-(1-1)) = 2
+
+
+Example 2:
+
+Input: expression = "2*3-4*5"
+Output: [-34,-14,-10,-10,10]
+Explanation:
+(2*(3-(4*5))) = -34 
+((2*3)-(4*5)) = -14 
+((2*(3-4))*5) = -10 
+(2*((3-4)*5)) = -10 
+(((2*3)-4)*5) = 10
+ 
+
+Constraints:
+
+1 <= expression.length <= 20
+expression consists of digits and the operator '+', '-', and '*'.
+All the integer values in the input expression are in the range [0, 99].
+The integer values in the input expression do not have a leading '-' or '+' denoting the sign.
+
+
+
+=====================================Solution=======================================
+
+Python
+
+class Solution:
+  @functools.lru_cache(None)
+  def diffWaysToCompute(self, expression: str) -> list[int]:
+    ans = []
+
+    for i, c in enumerate(expression):
+      if c in '+-*':
+        for a in self.diffWaysToCompute(expression[:i]):
+          for b in self.diffWaysToCompute(expression[i + 1:]):
+            ans.append(eval(str(a) + c + str(b)))
+
+    return ans or [int(expression)]
+
+
+
+class Solution:
+    def diffWaysToCompute(self, expression: str) -> List[int]:
+
+        @cache
+        def dfs(expr):
+            if len(expr) == 0:
+                return []
+            
+            if expr.isnumeric():
+                return [int(expr)]
+
+            result = []
+            for i, c in enumerate(expr):
+                if c.isdigit():
+                    continue
+                left_result = dfs(expr[:i])
+                right_result = dfs(expr[i+1:])
+
+                for lr in left_result:
+                    for rl in right_result:
+                        match c:
+                            case '+':
+                                result.append(lr + rl)
+                            case '-':
+                                result.append(lr - rl)
+                            case '*':
+                                result.append(lr * rl)
+
+            return result     
+        return dfs(expression)
+
+
+
+class Solution:
+    def recurse(self, expr) -> list[int]:
+        try:
+            return [int(expr)]
+        except:
+            results = []
+            for op in range(len(expr)):
+                if expr[op] in '+-*':
+                    left_side = self.recurse(expr[:op])
+                    right_side = self.recurse(expr[op+1:])
+                    for left in left_side:
+                        for right in right_side:
+                            if expr[op] == '+':
+                                results.append(left + right)
+                            elif expr[op] == '-':
+                                results.append(left - right)
+                            elif expr[op] == '*':
+                                results.append(left * right)
+            return results
+
+    def diffWaysToCompute(self, expression: str) -> List[int]:
+        return self.recurse(expression)
+
+
+
+
+TestCase 1:
+Input
+expression =
+"2-1-1"
+Output
+[2,0]
+Expected
+[2,0]
+
+TestCase 2:
+Input
+expression =
+"2*3-4*5"
+Output
+[-34,-10,-14,-10,10]
+Expected
+[-34,-10,-14,-10,10]

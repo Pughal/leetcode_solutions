@@ -1,0 +1,139 @@
+Given an integer array nums, find the maximum possible bitwise OR of a subset of nums and return the number of different non-empty subsets with the maximum bitwise OR.
+
+An array a is a subset of an array b if a can be obtained from b by deleting some (possibly zero) elements of b. 
+Two subsets are considered different if the indices of the elements chosen are different.
+
+The bitwise OR of an array a is equal to a[0] OR a[1] OR ... OR a[a.length - 1] (0-indexed).
+
+ 
+
+Example 1:
+
+Input: nums = [3,1]
+Output: 2
+Explanation: The maximum possible bitwise OR of a subset is 3. There are 2 subsets with a bitwise OR of 3:
+- [3]
+- [3,1]
+
+
+Example 2:
+
+Input: nums = [2,2,2]
+Output: 7
+Explanation: All non-empty subsets of [2,2,2] have a bitwise OR of 2. There are 23 - 1 = 7 total subsets.
+
+
+Example 3:
+
+Input: nums = [3,2,1,5]
+Output: 6
+Explanation: The maximum possible bitwise OR of a subset is 7. There are 6 subsets with a bitwise OR of 7:
+- [3,5]
+- [3,1,5]
+- [3,2,5]
+- [3,2,1,5]
+- [2,5]
+- [2,1,5]
+ 
+
+Constraints:
+
+1 <= nums.length <= 16
+1 <= nums[i] <= 10^5
+
+
+
+===============================================Solution====================================================
+
+Python
+
+
+class Solution:
+  def countMaxOrSubsets(self, nums: list[int]) -> int:
+    ors = functools.reduce(operator.or_, nums)
+    ans = 0
+
+    def dfs(i: int, path: int) -> None:
+      nonlocal ans
+      if i == len(nums):
+        if path == ors:
+          ans += 1
+        return
+
+      dfs(i + 1, path)
+      dfs(i + 1, path | nums[i])
+
+    dfs(0, 0)
+    return ans
+
+
+class Solution:
+    def countMaxOrSubsets(self, nums: List[int]) -> int:
+        max_or = 0
+        prev = Counter()
+        prev[0] = 1
+        
+        for elem in nums:
+            max_or |= elem
+
+            current = Counter()
+            for prev_or, cnt in prev.items():
+                current[prev_or | elem] += cnt
+            prev.update(current)
+        
+        return prev[max_or]
+    
+##Time Complexity (TC): O(n * 2^n) Space Complexity (SC): O(2^n)
+
+
+class Solution:
+    def countMaxOrSubsets(self, nums: List[int]) -> int:
+        if len(nums) == 1:
+            return 1
+
+        def calculate_max_or(values):
+            local_max_or = 0
+            for value in values:
+                local_max_or = local_max_or | value
+            return local_max_or
+
+        max_or = calculate_max_or(nums)
+        result = 1
+        for i in range(2, len(nums)):
+            for subset in itertools.combinations(nums, i):
+                if calculate_max_or(subset) == max_or:
+                    result += 1
+        for num in nums:
+            if num >= max_or:
+                result += 1
+        return result
+
+
+
+TestCase 1:
+Input
+nums =
+[3,1]
+Output
+2
+Expected
+2
+
+
+TestCase 2:
+Input
+nums =
+[2,2,2]
+Output
+7
+Expected
+7
+
+TestCase 3:
+Input
+nums =
+[3,2,1,5]
+Output
+6
+Expected
+6

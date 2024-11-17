@@ -1,0 +1,114 @@
+Hard
+
+
+Given an integer array nums and an integer k, return the length of the shortest non-empty subarray of nums with a sum of at least k. If there is no such subarray, return -1.
+
+A subarray is a contiguous part of an array.
+
+ 
+
+Example 1:
+
+Input: nums = [1], k = 1
+Output: 1
+
+
+Example 2:
+
+Input: nums = [1,2], k = 4
+Output: -1
+
+
+Example 3:
+
+Input: nums = [2,-1,2], k = 3
+Output: 3
+ 
+
+Constraints:
+
+1 <= nums.length <= 10^5
+-10^5 <= nums[i] <= 10^5
+1 <= k <= 10^9
+
+
+==============================================Solution===============================================
+
+Python
+
+class Solution:
+  def shortestSubarray(self, nums: list[int], k: int) -> int:
+    n = len(nums)
+    ans = n + 1
+    dq = collections.deque()
+    prefix = list(itertools.accumulate(nums, initial=0))
+
+    for i in range(n + 1):
+      while dq and prefix[i] - prefix[dq[0]] >= k:
+        ans = min(ans, i - dq.popleft())
+      while dq and prefix[i] <= prefix[dq[-1]]:
+        dq.pop()
+      dq.append(i)
+
+    return ans if ans <= n else -1
+
+
+
+
+class Solution:
+    def shortestSubarray(self, nums: List[int], k: int) -> int:
+        res = float('inf')
+        pre_sum = [0] * (len(nums) + 1)
+        for i in range(len(nums)):
+            pre_sum[i + 1] = pre_sum[i] + nums[i]
+        starts = deque()
+        for i, num in enumerate(nums):
+            if num > 0:
+                starts.append(i)
+            else:
+                while starts and pre_sum[i + 1] - pre_sum[starts[-1]] < 0:
+                    starts.pop()
+            while starts and pre_sum[i + 1] - pre_sum[starts[0]] >= k:
+                res = min(res, i - starts.popleft() + 1)
+
+        if res > len(nums):
+            res = -1
+        return res
+
+
+
+
+TestCase 1:
+Input
+nums =
+[1]
+k =
+1
+Output
+1
+Expected
+1
+
+TestCase 2:
+Input
+nums =
+[1,2]
+k =
+4
+Output
+-1
+Expected
+-1
+
+
+TestCase 3:
+Input
+nums =
+[2,-1,2]
+k =
+3
+Output
+3
+Expected
+3
+

@@ -1,0 +1,190 @@
+Hard
+
+
+You are given a 0-indexed 2D integer array pairs where pairs[i] = [starti, endi]. 
+An arrangement of pairs is valid if for every index i where 1 <= i < pairs.length, we have endi-1 == starti.
+
+Return any valid arrangement of pairs.
+
+Note: The inputs will be generated such that there exists a valid arrangement of pairs.
+
+ 
+
+Example 1:
+
+Input: pairs = [[5,1],[4,5],[11,9],[9,4]]
+Output: [[11,9],[9,4],[4,5],[5,1]]
+Explanation:
+This is a valid arrangement since endi-1 always equals starti.
+end0 = 9 == 9 = start1 
+end1 = 4 == 4 = start2
+end2 = 5 == 5 = start3
+
+
+
+Example 2:
+
+Input: pairs = [[1,3],[3,2],[2,1]]
+Output: [[1,3],[3,2],[2,1]]
+Explanation:
+This is a valid arrangement since endi-1 always equals starti.
+end0 = 3 == 3 = start1
+end1 = 2 == 2 = start2
+The arrangements [[2,1],[1,3],[3,2]] and [[3,2],[2,1],[1,3]] are also valid.
+
+
+
+Example 3:
+
+Input: pairs = [[1,2],[1,3],[2,1]]
+Output: [[1,2],[2,1],[1,3]]
+Explanation:
+This is a valid arrangement since endi-1 always equals starti.
+end0 = 2 == 2 = start1
+end1 = 1 == 1 = start2
+ 
+
+Constraints:
+
+1 <= pairs.length <= 10^5
+pairs[i].length == 2
+0 <= starti, endi <= 10^9
+starti != endi
+No two pairs are exactly the same.
+There exists a valid arrangement of pairs.
+
+
+
+
+=====================================Solution==========================================
+
+Python
+
+class Solution:
+  def validArrangement(self, pairs: list[list[int]]) -> list[list[int]]:
+    ans = []
+    graph = collections.defaultdict(list)
+    outDegree = collections.Counter()
+    inDegrees = collections.Counter()
+
+    for start, end in pairs:
+      graph[start].append(end)
+      outDegree[start] += 1
+      inDegrees[end] += 1
+
+    def getStartNode() -> int:
+      for u in graph.keys():
+        if outDegree[u] - inDegrees[u] == 1:
+          return u
+      return pairs[0][0]  # Arbitrarily choose a node.
+
+    def euler(u: int) -> None:
+      stack = graph[u]
+      while stack:
+        v = stack.pop()
+        euler(v)
+        ans.append([u, v])
+
+    euler(getStartNode())
+    return ans[::-1]
+
+
+
+
+class Solution:
+    def validArrangement(self, pairs: List[List[int]]) -> List[List[int]]:
+        # graph represents adjacency list, inOutDeg tracks in/out degree difference
+        graph = defaultdict(list)
+        inOutDeg = defaultdict(int)
+
+        # Build graph and calculate in/out degrees
+        for start, end in pairs:
+            graph[start].append(end)
+            inOutDeg[start] += 1  # out-degree
+            inOutDeg[end] -= 1    # in-degree
+
+        # Find starting node (node with out-degree > in-degree)
+        startNode = pairs[0][0]  # default start
+        for node in inOutDeg:
+            if inOutDeg[node] == 1:
+                startNode = node
+                break
+
+        path = []
+        def dfs(curr):
+            while graph[curr]:
+                nextNode = graph[curr].pop()
+                dfs(nextNode)
+                path.append((curr, nextNode))
+
+        dfs(startNode)
+        return path[::-1]
+
+
+
+
+
+class Solution:
+    def validArrangement(self, pairs: List[List[int]]) -> List[List[int]]:
+
+        graph = collections.defaultdict(list)
+        in_count = collections.Counter()
+        for start, end in pairs:
+            graph[start].append(end)
+            in_count[end] += 1
+
+        # find a start.
+        # in eulerian path, start has 1 more outdegree than indegrees
+        start = pairs[0][0]
+        for node in graph.keys():
+            if in_count[node] < len(graph[node]):
+                start = node
+                break
+
+        queue = [start]
+        route = []
+        while queue:
+            node = queue[-1]
+            if graph[node]:
+                queue.append(graph[node].pop())
+            else:
+                route.append(queue.pop())
+        
+        answer = []
+        for i in reversed(range(len(route) - 1)):
+            start, end = route[i + 1], route[i]
+            answer.append((start, end))
+
+        return answer
+
+
+
+        
+
+
+TestCase 1:
+Input
+pairs =
+[[5,1],[4,5],[11,9],[9,4]]
+Output
+[[11,9],[9,4],[4,5],[5,1]]
+Expected
+[[11,9],[9,4],[4,5],[5,1]]
+
+TestCase 2:
+Input
+pairs =
+[[1,3],[3,2],[2,1]]
+Output
+[[1,3],[3,2],[2,1]]
+Expected
+[[1,3],[3,2],[2,1]]
+
+TestCase 3:
+Input
+pairs =
+[[1,2],[1,3],[2,1]]
+Output
+[[1,2],[2,1],[1,3]]
+Expected
+[[1,2],[2,1],[1,3]]

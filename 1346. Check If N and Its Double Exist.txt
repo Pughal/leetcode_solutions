@@ -1,0 +1,88 @@
+Given an array arr of integers, check if there exist two indices i and j such that :
+
+i != j
+0 <= i, j < arr.length
+arr[i] == 2 * arr[j]
+ 
+
+Example 1:
+
+Input: arr = [10,2,5,3]
+Output: true
+Explanation: For i = 0 and j = 2, arr[i] == 10 == 2 * 5 == 2 * arr[j]
+
+
+Example 2:
+
+Input: arr = [3,1,7,11]
+Output: false
+Explanation: There is no i and j that satisfy the conditions.
+ 
+
+Constraints:
+
+2 <= arr.length <= 500
+-10^3 <= arr[i] <= 10^3
+
+
+
+====================================Solution========================================
+
+Python
+
+class Solution:
+    def checkIfExist(self, arr: List[int]) -> bool:
+        for i in range(len(arr)):
+            for j in range(len(arr)):
+                if i != j and arr[i] == 2 * arr[j]:
+                    return True
+        return False
+
+
+
+class Solution:
+    def checkIfExist(self, arr: List[int]) -> bool:
+        count = {}
+
+        # Count occurrences of each number
+        for num in arr:
+            count[num] = count.get(num, 0) + 1
+
+        for num in arr:
+            # Check for double
+            if num != 0 and 2 * num in count:
+                return True
+            # Handle zero case (ensure there are at least two zeros)
+            if num == 0 and count[num] > 1:
+                return True
+
+        return False
+
+
+
+
+class Solution:
+    def checkIfExist(self, arr: List[int]) -> bool:
+        for i in range(len(arr) - 1):
+            for j in range(i+1,len(arr)):
+                if (i != j) and (0 <= i and j < len(arr)) and (arr[i] == 2*arr[j] or arr[j] == 2 * arr[i]):
+                    return True
+        return False
+
+TestCase 1:
+Input
+arr =
+[10,2,5,3]
+Output
+true
+Expected
+true
+
+TestCase 2:
+Input
+arr =
+[3,1,7,11]
+Output
+false
+Expected
+false

@@ -1,0 +1,184 @@
+You are given a string s and an integer repeatLimit. Construct a new string repeatLimitedString using the characters of s such that no letter appears more than repeatLimit times in a row. You do not have to use all characters from s.
+
+Return the lexicographically largest repeatLimitedString possible.
+
+A string a is lexicographically larger than a string b if in the first position where a and b differ, string a has a letter that appears later in the alphabet than the corresponding letter in b. If the first min(a.length, b.length) characters do not differ, then the longer string is the lexicographically larger one.
+
+ 
+
+Example 1:
+
+Input: s = "cczazcc", repeatLimit = 3
+Output: "zzcccac"
+Explanation: We use all of the characters from s to construct the repeatLimitedString "zzcccac".
+The letter 'a' appears at most 1 time in a row.
+The letter 'c' appears at most 3 times in a row.
+The letter 'z' appears at most 2 times in a row.
+Hence, no letter appears more than repeatLimit times in a row and the string is a valid repeatLimitedString.
+The string is the lexicographically largest repeatLimitedString possible so we return "zzcccac".
+Note that the string "zzcccca" is lexicographically larger but the letter 'c' appears more than 3 times in a row, so it is not a valid repeatLimitedString.
+
+
+Example 2:
+
+Input: s = "aababab", repeatLimit = 2
+Output: "bbabaa"
+Explanation: We use only some of the characters from s to construct the repeatLimitedString "bbabaa". 
+The letter 'a' appears at most 2 times in a row.
+The letter 'b' appears at most 2 times in a row.
+Hence, no letter appears more than repeatLimit times in a row and the string is a valid repeatLimitedString.
+The string is the lexicographically largest repeatLimitedString possible so we return "bbabaa".
+Note that the string "bbabaaa" is lexicographically larger but the letter 'a' appears more than 2 times in a row, so it is not a valid repeatLimitedString.
+ 
+
+Constraints:
+
+1 <= repeatLimit <= s.length <= 10^5
+s consists of lowercase English letters.
+
+
+
+
+===========================================Solution===========================================
+
+Python
+
+class Solution:
+  def repeatLimitedString(self, s: str, repeatLimit: int) -> str:
+    ans = ''
+    count = collections.Counter(s)
+
+    while True:
+      addOne = ans and self._shouldAddOne(ans, count)
+      c = self._getLargestChar(ans, count)
+      if c == ' ':
+        break
+      repeats = 1 if addOne else min(count[c], repeatLimit)
+      ans += c * repeats
+      count[c] -= repeats
+
+    return ans
+
+  def _shouldAddOne(self, ans: str, count: collections.Counter) -> bool:
+    for c in reversed(string.ascii_lowercase):
+      if count[c]:
+        return ans[-1] == c
+    return False
+
+  def _getLargestChar(self, ans: str, count: collections.Counter) -> int:
+    for c in reversed(string.ascii_lowercase):
+      if count[c] and (not ans or ans[-1] != c):
+        return c
+    return ' '
+
+
+
+
+
+class Solution:
+    def repeatLimitedString(self, s: str, repeatLimit: int) -> str:
+        # count frequencies of each letter in s
+        # if z has freq < limit, then great. they can all be in one block or used as separators between letters that have freq > limit
+        # want lexographically largest so use up lexogrpahically letters first
+        # max heap with key = (letter, count)
+        # c, 4 
+        # use up c,3, add to answer
+        # while remainder > 0: check top of heap for something. use it to create a break. add next chunk of c and update remainder. add splitter letter back to heap
+        
+        # count frequencies of each letter in s
+        counts = Counter(s)
+        counts = [(-ord(k),v) for k,v in counts.items()]
+        # convert it to a 
+        heapq.heapify(counts)
+        ans = [] # build ans as array of letters. join at end since strings in python are immutable
+        while counts:
+            # pop off lexographically largest element
+            num, count = heapq.heappop(counts)
+            letter = chr(-num)
+            ans.extend([letter] * min(repeatLimit, count)) #add it as many times as allowed
+            # see what's left
+            count -= repeatLimit
+            while count > 0 and counts:
+                # grab the second lexographically largest element and use that as a divider as neceesay
+                num2, second_count = heapq.heappop(counts)
+                second_letter = chr(-num2)
+                
+                
+                while count > 0 and second_count > 0:
+                    ans.append(second_letter)
+                    second_count -= 1
+                    ans.extend([letter] * min(repeatLimit, count))
+                    count -= repeatLimit
+
+                if second_count > 0:
+                    # add it back to heap after fully used if it still has at least 1 remaining count
+                    heapq.heappush(counts, (num2, second_count))
+                
+            
+        
+        return "".join(ans)
+                
+
+
+
+
+
+from collections import defaultdict
+import heapq
+
+class Solution:
+    def repeatLimitedString(self, s: str, repeatLimit: int) -> str:
+        result = ''
+
+        letter_count = defaultdict(int)
+        for letter in s:
+            letter_count[letter] += 1
+        
+        heap = []
+        for letter, count in letter_count.items():
+            heapq.heappush(heap, (-ord(letter), count))
+        
+        while heap:
+            largest_letter, largest_letter_count = heapq.heappop(heap)
+            
+            if largest_letter_count <= repeatLimit:
+                result += chr(-largest_letter) * largest_letter_count
+            else:
+                result += chr(-largest_letter) * repeatLimit
+                
+                if not heap:
+                    break
+                else:
+                    next_letter, next_letter_count = heapq.heappop(heap)
+                    result += chr(-next_letter)
+
+                    if next_letter_count != 1:
+                        heapq.heappush(heap, (next_letter, next_letter_count - 1))
+                
+                heapq.heappush(heap, (largest_letter, largest_letter_count - repeatLimit))
+
+        return result
+
+TestCase 1:
+Input
+s =
+"cczazcc"
+repeatLimit =
+3
+Output
+"zzcccac"
+Expected
+"zzcccac"
+
+
+
+TestCase 2:
+Input
+s =
+"aababab"
+repeatLimit =
+2
+Output
+"bbabaa"
+Expected
+"bbabaa"

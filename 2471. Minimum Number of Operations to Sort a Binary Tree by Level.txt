@@ -1,0 +1,225 @@
+You are given the root of a binary tree with unique values.
+
+In one operation, you can choose any two nodes at the same level and swap their values.
+
+Return the minimum number of operations needed to make the values at each level sorted in a strictly increasing order.
+
+The level of a node is the number of edges along the path between it and the root node.
+
+ 
+
+Example 1:
+
+
+Input: root = [1,4,3,7,6,8,5,null,null,null,null,9,null,10]
+Output: 3
+Explanation:
+- Swap 4 and 3. The 2nd level becomes [3,4].
+- Swap 7 and 5. The 3rd level becomes [5,6,8,7].
+- Swap 8 and 7. The 3rd level becomes [5,6,7,8].
+We used 3 operations so return 3.
+It can be proven that 3 is the minimum number of operations needed.
+
+
+
+Example 2:
+
+
+Input: root = [1,3,2,7,6,5,4]
+Output: 3
+Explanation:
+- Swap 3 and 2. The 2nd level becomes [2,3].
+- Swap 7 and 4. The 3rd level becomes [4,6,5,7].
+- Swap 6 and 5. The 3rd level becomes [4,5,6,7].
+We used 3 operations so return 3.
+It can be proven that 3 is the minimum number of operations needed.
+
+
+
+Example 3:
+
+
+Input: root = [1,2,3,4,5,6]
+Output: 0
+Explanation: Each level is already sorted in increasing order so return 0.
+ 
+
+Constraints:
+
+The number of nodes in the tree is in the range [1, 10^5].
+1 <= Node.val <= 10^5
+All the values of the tree are unique.
+
+
+
+
+=========================================Solution=============================================
+
+Python
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def minimumOperations(self, root: Optional["TreeNode"]) -> int:
+        queue = deque([root])
+        total_swaps = 0
+
+        # Process tree level by level using BFS
+        while queue:
+            level_size = len(queue)
+            level_values = []
+
+            # Store level values and add children to queue
+            for _ in range(level_size):
+                node = queue.popleft()
+                level_values.append(node.val)
+
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+
+            # Add minimum swaps needed for current level
+            total_swaps += self._get_min_swaps(level_values)
+
+        return total_swaps
+
+    # Calculate minimum swaps needed to sort an array
+    def _get_min_swaps(self, original: list) -> int:
+        swaps = 0
+        target = sorted(original)
+
+        # Map to track current positions of values
+        pos = {val: idx for idx, val in enumerate(original)}
+
+        # For each position, swap until correct value is placed
+        for i in range(len(original)):
+            if original[i] != target[i]:
+                swaps += 1
+
+                # Update position of swapped values
+                cur_pos = pos[target[i]]
+                pos[original[i]] = cur_pos
+                original[cur_pos] = original[i]
+
+        return swaps
+
+
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def minimumOperations(self, root: Optional[TreeNode]) -> int:
+        
+        ret = 0
+        q = deque([root])
+        while q:
+            current_level = deque()
+            for _ in range(len(q)):
+                node = q.popleft()
+                current_level.append(node.val)
+                if node.left: q.append(node.left)
+                if node.right: q.append(node.right)
+            
+            # Sort
+            if len(current_level) == 1:
+                continue
+            
+            sorted_current_level = sorted(current_level)
+            
+            # val_to_idx = defaultdict(int)
+            val_to_idx = {}
+            for i in range(len(current_level)):
+                val_to_idx[current_level[i]] = i
+
+            for i in range(len(current_level)):
+                if current_level[i] == sorted_current_level[i]:
+                    continue
+                
+                expected_val = sorted_current_level[i]
+                idx_to_swap = val_to_idx[expected_val]
+
+                # swap between i and idx_to_swap
+                current_level[i], current_level[idx_to_swap] = current_level[idx_to_swap], current_level[i]
+
+                # !!! Need to update val_to_idx again
+                val_to_idx[current_level[i]] = i
+                val_to_idx[current_level[idx_to_swap]] = idx_to_swap
+
+                ret += 1
+            
+            print(ret)
+
+        return ret
+
+    def minimumOperations_(self, root: Optional[TreeNode]) -> int:
+        queue = deque([root])
+        swaps = 0        
+        while queue:
+            q_size = len(queue)
+            nodes = []
+            count = 0
+            prev_value = 0
+            is_valid = True
+            for _ in range(q_size):
+                node = queue.popleft()
+                nodes.append(node.val)
+                if node.left:                    
+                    queue.append(node.left)
+                if node.right:                    
+                    queue.append(node.right)                                
+                if node.val < prev_value:
+                    count += 1                    
+                    is_valid = False
+                prev_value = node.val            
+            if not is_valid:                
+                if count == q_size-1:                    
+                    swaps = swaps + (q_size// 2)                    
+                else:                    
+                    for i in range(len(nodes)):
+                        min_node = i                        
+                        for j in range(i+1, len(nodes)):
+                            if nodes[j] < nodes[min_node]:                                
+                                min_node = j                    
+                        if i != min_node:
+                            swaps += 1
+                            nodes[min_node], nodes[i] = nodes[i], nodes[min_node]
+        return swaps
+
+
+
+TestCase 1:
+Input
+root =
+[1,4,3,7,6,8,5,null,null,null,null,9,null,10]
+Output
+3
+Expected
+3
+
+TestCase 2:
+Input
+root =
+[1,3,2,7,6,5,4]
+Output
+3
+Expected
+3
+
+TestCase 3:
+Input
+root =
+[1,2,3,4,5,6]
+Output
+0
+Expected
+0
